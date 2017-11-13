@@ -1,26 +1,15 @@
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class Model {
-    public static PriorityBlockingQueue<Node> queue;
+    public PriorityBlockingQueue<Node<Prob>> queue;
 
-    public Model(Node root){
+    public Model(Node<Prob> root){
         queue = new PriorityBlockingQueue<>();
-        queue.add(new Node<Integer>(null, 5));
-        queue.add(new Node<Integer>(null, 1));
-        queue.add(new Node<Integer>(null, 6));
-        queue.add(new Node<Integer>(null, 2));
-        queue.add(new Node<Integer>(null, 7));
-        queue.add(new Node<Integer>(null, 3));
-        queue.add(new Node<Integer>(null, 8));
-        queue.add(new Node<Integer>(null, 4));
-        
-        
-        
-        
+        queue.add(root);
+    }
 
-        while (!queue.isEmpty()){
-            System.out.println(queue.remove().getInstance());
-        }
+    public static void main(String[] args) {
+        Model m = new Model(null);
     }
     
 }

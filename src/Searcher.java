@@ -1,7 +1,8 @@
+import java.util.concurrent.PriorityBlockingQueue;
 
-
-public class Searcher {
+public class Searcher implements Runnable {
     
+    public PriorityBlockingQueue<Node<Prob>> qRef;
     
 
     public Searcher() {
@@ -9,9 +10,12 @@ public class Searcher {
         
     }
 
-    public static void main(String[] args){
-        System.out.println("TEST");
-
-        Model m = new Model(null);
+    /**
+     
+     */
+    @Override
+    public void run() {
+        
     }
+
 }
