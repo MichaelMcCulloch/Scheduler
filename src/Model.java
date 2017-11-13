@@ -9,7 +9,8 @@ public class Model {
     }
 
     public static void main(String[] args) {
-        Model m = new Model(null);
+        Node<Prob> n = new Node<Prob>(null, new Prob());
+        Model m = new Model(n);
     }
     
 }

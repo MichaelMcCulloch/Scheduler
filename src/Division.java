@@ -1,29 +1,37 @@
+
 import java.util.ArrayList;
+import java.util.function.Function;
 
 /**
- * Division. Still not sure where this should go. But it should be attached in some way to a node
+ * Division<T> extendFunction<T,T>  
+ * T could be a Node or directly a Prob.
  */
-public class Division<T> implements Comparable{
+public class Division<T> implements Function<T,ArrayList<T>>, Comparable<Division<T>> {
 
-    /**
-     *
-     */
+    private Function<T, ArrayList<T>> fun; //pass in a function you would like to use to compute DIV
+    private int score;
+
+    public Division(Function<T, ArrayList<T>> fun, T instance){
+        this.fun = fun;
+        this.score = fTRANS(instance);
+
+    }
+
     @Override
-    public int compareTo(Object o) {
-        return 0;
+    public ArrayList<T> apply(T t) {
+        return fun.apply(t);
+    }
+
+    @Override
+    public int compareTo(Division<T> other) {
+        return (this.score < other.score) ? -1 : 1;
     }
 
     /**
-     * the quality of this transition is somewhat dependant on the instance. to be used in compareTo
+     * Valuation of this division with regard to an instance of a problem
      */
-    private int fTRANS(T instance){
+    private int fTRANS(T p){
         return 0;
     }
-
-    /**
-     * Create children out of this division
-     */
-    public ArrayList<T> divide(T instance){
-        return new ArrayList<>();
-    }
+    
 }

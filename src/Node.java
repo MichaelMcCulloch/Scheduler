@@ -1,46 +1,47 @@
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.function.Function;
 
-public class Node<T> implements Comparable<Node<T>> {
+public class Node<T extends Comparable<? super T>> implements Comparable<Node<T>> {
 
     private T instance;                 //This is an instance of PROB
-    private Boolean solved;             //null = undecided. true = yes, false = unsolvable
-    protected Integer score;            //only need to evaluate once
-    private Node<T> parent;             //to propagate (un)solvedness to parent;
+    private Node<T> parent;             //to propagate (un)solvedness to parent, (parent == null) == isRootNode;
     private ArrayList<Node<T>> children;//childNodes of this one.
     private PriorityQueue divisions;    //List of devisions not yet tried.
 
 
-    public Node(Node<T> parent, T instance, ArrayList<Node<T>> children, ArrayList<Division> divisions){
+    public Node(Node<T> parent, 
+                T instance, 
+                ArrayList<Node<T>> children, 
+                ArrayList<Function<T, ArrayList<T>>> divisions){
         this.instance = instance;
         this.parent = parent;
         this.children = children;
-        this.score = fLEAF(instance);
-        this.solved = null;
         this.divisions = new PriorityQueue<>(divisions);
     }
 
     /**
-     * Creates a new node, solution yet unknown
+     * Creates a new node
+     * @param parent The parent of this node
+     * @param instance The particular instance of Prob
      */
     public Node(Node<T> parent, T instance) {
         this(parent, instance, new ArrayList<>(), new ArrayList<>());
     }
-
-    public void isSolved(boolean solved) {
-        this.solved = solved;
+    /**
+     * Add children to this node
+     * @param children The new nodes (created by DIV) which you wish to add
+     */
+    public void addChild(ArrayList<Node<T>> children) {
+        this.children.addAll(children);
     }
-
-    public void addChild(Node<T> child) {
-        children.add(child);
-    }
+    
 
     /**
      * A node is better if it evaluates to a lower value, or if it is solved or unsolvable;
      */
     public int compareTo(Node<T> other) {
-        if (solved != null) return -1;
-        return (this.score < other.score) ? -1 : 1;
+        return (instance.compareTo(other.instance));
     }
 
     /**
