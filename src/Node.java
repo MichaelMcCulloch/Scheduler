@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.function.Function;
 
-public class Node<T extends Comparable<? super T>> implements Comparable<Node<T>> {
+public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
 
     private T instance; //This is an instance of PROB
     private Node<T> parent; //to propagate (un)solvedness to parent, (parent == null) == isRootNode;

@@ -11,12 +11,12 @@ import java.util.concurrent.PriorityBlockingQueue;
     *  ...some processing tbd
     *  put all ks into the work queue;
  */
-public class Searcher<T extends Comparable<T>> implements Runnable {
+public class Searcher implements Runnable {
 
-    public PriorityBlockingQueue<Node<T>> qRef;
+    private PriorityBlockingQueue<Node<Prob>> qRef;
 
-    public Searcher() {
-
+    public Searcher(PriorityBlockingQueue<Node<Prob>> workQueue) {
+        qRef = workQueue;
     }
 
     /**
