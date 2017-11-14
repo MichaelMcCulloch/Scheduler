@@ -1,4 +1,5 @@
 import java.util.concurrent.PriorityBlockingQueue;
+
 /**
  * Searcher
  * Idea is that many of these can run simultaneously, and share a work queue. 
@@ -11,13 +12,11 @@ import java.util.concurrent.PriorityBlockingQueue;
     *  put all ks into the work queue;
  */
 public class Searcher implements Runnable {
-    
+
     public PriorityBlockingQueue<Node<Prob>> qRef;
-    
 
     public Searcher() {
-        
-        
+
     }
 
     /**
@@ -25,7 +24,7 @@ public class Searcher implements Runnable {
      */
     @Override
     public void run() {
-        
+
     }
 
 }

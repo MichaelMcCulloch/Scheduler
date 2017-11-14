@@ -6,12 +6,12 @@ import java.util.function.Function;
  * Division<T> extendFunction<T,T>  
  * T could be a Node or directly a Prob.
  */
-public class Division<T> implements Function<T,ArrayList<T>>, Comparable<Division<T>> {
+public class Division<T> implements Function<T, ArrayList<T>>, Comparable<Division<T>> {
 
-    private Function<T, ArrayList<T>> div;  //pass in a function you would like to use to compute DIV
-    private int score;                      // so it can be ranked in a priority queue
+    private Function<T, ArrayList<T>> div; //pass in a function you would like to use to compute DIV
+    private int score; // so it can be ranked in a priority queue
 
-    public Division(Function<T, ArrayList<T>> fun, T instance){
+    public Division(Function<T, ArrayList<T>> fun, T instance) {
         this.div = fun;
         this.score = fTRANS(instance);
 
@@ -36,10 +36,10 @@ public class Division<T> implements Function<T,ArrayList<T>>, Comparable<Divisio
     /**
      * Valuation of this division with regard to an instance of a problem
      */
-    private int fTRANS(T p){
-        Prob pr = (Prob)p;
+    private int fTRANS(T p) {
+        Prob pr = (Prob) p;
         //do something with pr
         return 0;
     }
-    
+
 }
