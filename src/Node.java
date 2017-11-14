@@ -7,17 +7,21 @@ public class Node<T extends Comparable<? super T>> implements Comparable<Node<T>
     private T instance;                 //This is an instance of PROB
     private Node<T> parent;             //to propagate (un)solvedness to parent, (parent == null) == isRootNode;
     private ArrayList<Node<T>> children;//childNodes of this one.
-    private PriorityQueue divisions;    //List of devisions not yet tried.
+    private PriorityQueue<Division<T>> divisions;    //List of devisions not yet tried.
 
 
     public Node(Node<T> parent, 
                 T instance, 
                 ArrayList<Node<T>> children, 
-                ArrayList<Function<T, ArrayList<T>>> divisions){
+                ArrayList<Function<T, ArrayList<T>>> funs){
         this.instance = instance;
         this.parent = parent;
         this.children = children;
-        this.divisions = new PriorityQueue<>(divisions);
+        // Construct Divs and rank them against this instance. 
+        for (Function<T, ArrayList<T>> fun : funs) {
+            Division<T> k = new Division<T>(fun, instance);
+            divisions.add(k);
+        }
     }
 
     /**

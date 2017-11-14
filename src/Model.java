@@ -1,5 +1,9 @@
 import java.util.concurrent.PriorityBlockingQueue;
 
+/**
+ * Responsible for the creation of threads. Since all the peices of the tree exist here in the queue, this might as well be the model
+ */
+
 public class Model {
     public PriorityBlockingQueue<Node<Prob>> queue;
 
