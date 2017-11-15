@@ -14,10 +14,9 @@ public class Prob implements Comparable<Prob> {
 
     @Override
     public int compareTo(Prob other) {
-        if (solved != null)
-            return -1; // priority to solved or unsolvable nodes (Really though if a prob is solved, it doesn't belong in the work queue)
-        else
-            return (this.score < other.score) ? -1 : 1;
+
+        return (this.score < other.score) ? -1 : 1;
+        //if this changes, will need to change model.newBest()
     }
 
     /**

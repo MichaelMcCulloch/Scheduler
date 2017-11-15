@@ -14,6 +14,8 @@ public class WorkQueue<T> {
     private PriorityBlockingQueue<T> workQueue;
     private ConcurrentLinkedQueue<T> buffQueue; //wait-free
     private Thread qManager;
+    private boolean shutdownSignal = false;
+
 
     public WorkQueue(){
         workQueue = new PriorityBlockingQueue<>();
@@ -28,15 +30,19 @@ public class WorkQueue<T> {
     public void add(Collection<T> objs){
         buffQueue.addAll(objs);
     }
+
+    public void stop(){
+        shutdownSignal = true;
+    }
     /**
      * Remove a node from the work queue
      */
-    public synchronized T remove(){
+    public T remove(){
 
-        qManager.wait();
+        /**
+         * TODO: Kindly ask the queue Worker to stop blocking the queue
+         */
         T retVal = workQueue.remove();
-        qManager.notify();
-
         return workQueue.remove();
     }
 

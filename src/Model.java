@@ -5,11 +5,20 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 
 public class Model {
+
+    public static Node<Prob> bestNode;
+
     public PriorityBlockingQueue<Node<Prob>> queue;
 
     public Model(Node<Prob> root) {
         queue = new PriorityBlockingQueue<>();
         queue.add(root);
+    }
+
+    public static void newBest(Node<Prob> candidate) {
+        if (bestNode == null || candidate.compareTo(bestNode) > 0) {
+            bestNode = candidate;
+        }
     }
 
     public static void main(String[] args) {
