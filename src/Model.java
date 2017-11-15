@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.concurrent.locks.*;
+import java.util.function.Consumer;
 
 /**
  * Responsible for the creation of threads. Since all the peices of the tree exist here in the queue, this might as well be the model
@@ -11,27 +12,29 @@ public class Model {
     private static List<Course> allCourses;
 
     
-    private volatile static Node<Prob> bestNode;
+    private volatile static Schedule bestNode;
     private static Lock bestLock = new ReentrantLock(true);
     public static volatile boolean shutdownSignal;
-    private Node<Prob> root;
 
-    public Model(Node<Prob> root, List<Slot> slots, List<Course> courses) {
-        this.root = root;
+    public Model(List<Slot> slots, List<Course> courses) {
         this.allCourses = courses;
         this.allSlots = slots;
     }
 
+
     /**
      * Picks the best node based on its score only. not depths
      */
-    public static void checkBest(Node<Prob> candidate) {
-        bestLock.lock();
-        if (bestNode == null || candidate.getInstance().compareTo(bestNode.getInstance()) < 0) {
-            bestNode = candidate;
+    
+    public static Consumer<Schedule> checkBest = new Consumer<Schedule>() {
+        public void accept(Schedule sched){
+            bestLock.lock();
+            if (bestNode == null || sched.betterThan(bestNode)) {
+                bestNode = sched;
+            }
+            bestLock.unlock();
         }
-        bestLock.unlock();
-    }
+    };
 
     public static List<Course> getCourses(){
         return allCourses;

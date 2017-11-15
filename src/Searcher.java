@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -14,12 +16,11 @@ import java.util.stream.Collectors;
  */
 public class Searcher implements Runnable {
 
-    private PriorityQueue<Node<Prob>> workQueue;
-    private Node<Prob> best;
+    private PriorityQueue<Schedule> workQueue;
+    private Schedule best;
 
-    public Searcher(List<Node<Prob>> instances) {
-        workQueue = new PriorityQueue<>();
-        this.workQueue.addAll(instances);
+    public Searcher(List<Schedule> instances) {
+        workQueue = new PriorityQueue<>(instances);
     }
 
     /**
@@ -30,14 +31,14 @@ public class Searcher implements Runnable {
 
         while (!Model.shutdownSignal) {
             try {
-                Node<Prob> next = workQueue.remove();
-                List<Node<Prob>> children = div(next);
+                Schedule next = workQueue.remove();
+                List<Schedule> children = next.div(checkBest);
 
                 // Filter out nodes which violate the hard constraints and which are solved
-                List<Node<Prob>> unsolvedNodes = children.stream()
+                List<Schedule> unsolvedNodes = children.stream()
                         .filter(p -> (
-                                constr(p.getInstance()) && 
-                                !solved(p.getInstance())))
+                                p.constr() && 
+                                !p.solved()))
                         .collect(Collectors.toList());
 
                 workQueue.addAll(unsolvedNodes);
@@ -48,56 +49,16 @@ public class Searcher implements Runnable {
         //For testing
         System.out.println("Shutting down: " + workQueue.size());
     }
-
-    /**
-     * The Div function, may be called by main
-     */
-    public static List<Node<Prob>> div(Node<Prob> node) {
-        List<Node<Prob>> n = new ArrayList<>();
-
-        int selected = 0;
-        List<Slot> available = Model.getSlots();
-        List<Slot> allocated = node.getInstance().getAssigned();
-
-        while (allocated.get(selected) != null) {
-            selected++;
-        } // find first available slot to fill.
-          // Iterate through all available slots
-        for (Slot t : available) {
-            //Prepare a fresh copy
-            List<Slot> newAssignment = new ArrayList<>(allocated.size());
-            Collections.copy(newAssignment, allocated);
-
-            //assign the course to the timeslot
-            newAssignment.set(selected, t);
-            Node<Prob> next = new Node<Prob>(node, new Prob(newAssignment));
-            n.add(next);
+    
+    //passing a function as a parameter
+    Consumer<Schedule> checkBest = new Consumer<Schedule>() {
+        public void accept(Schedule sched){
+            if (best == null || sched.betterThan(best)) {
+                best = sched;
+                Model.checkBest.accept(sched);
+            }
         }
-        return n;
-    }
+    };
 
-    /**
-     * Decide if a problem instance meets the hard constraints
-     */
-    private boolean constr(Prob instance) {
-        return true;
-    }
-
-    /**
-     * If the instance is not solved/unsolvable, return false;
-     * Otherwise, if it is Solved, check if it's the best;
-     * If it is unsolvable, just return true;
-     * if it is below the bound, discard it
-     */
-    private boolean solved(Prob instance) {
-        return false;
-    }
-
-    private void checkBest(Node<Prob> instance) {
-        if (best == null || instance.getInstance().compareTo(best.getInstance()) < 0) {
-            best = instance;
-            Model.checkBest(instance);
-        }
-    }
 
 }

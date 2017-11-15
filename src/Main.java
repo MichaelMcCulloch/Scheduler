@@ -6,18 +6,18 @@ import java.util.concurrent.*;
  */
 public class Main {
 
-    public static List<Node<Prob>>[] makeWorkQueues(int poolSize,Node<Prob> root) {
+    public static List<Schedule>[] makeWorkQueues(int poolSize,Schedule root) {
         
         // Div it until there are more nodes than searchers
-        Queue<Node<Prob>> startingNodes = new LinkedList<>();
+        Queue<Schedule> startingNodes = new LinkedList<>();
         startingNodes.add(root);
         while (startingNodes.size() < poolSize){
-            startingNodes.addAll(Searcher.div(startingNodes.remove()));
+            startingNodes.addAll(startingNodes.remove().div(Model.checkBest));
         }
 
         
         // Round robin add them to the work queues of the searcher.
-        List<Node<Prob>>[] workQueues = new List[poolSize];
+        List<Schedule>[] workQueues = new List[poolSize];
         for (int i = 0; i < startingNodes.size(); i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
@@ -32,10 +32,10 @@ public class Main {
          * TODO: 
          * Generate root node from input file
          */
-        Node<Prob> root = null;
+        Schedule root = null;
 
        
-        List<Node<Prob>>[] workQueues = makeWorkQueues(poolSize, root);
+        List<Schedule>[] workQueues = makeWorkQueues(poolSize, root);
         
         
         // create worker threads 
