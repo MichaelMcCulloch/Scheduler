@@ -1,29 +1,23 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Main
  */
 public class Main {
 
-    public static ArrayList<Node<Prob>>[] makeWorkQueues(int poolSize,Node<Prob> root) {
-        /**
-         * Div it untill there are more nodes than searchers
-         */
+    public static List<Node<Prob>>[] makeWorkQueues(int poolSize,Node<Prob> root) {
+        
+        // Div it until there are more nodes than searchers
         Queue<Node<Prob>> startingNodes = new LinkedList<>();
         startingNodes.add(root);
         while (startingNodes.size() < poolSize){
-            startingNodes.addAll(Model.div(startingNodes.remove()));
+            startingNodes.addAll(Searcher.div(startingNodes.remove()));
         }
 
-        /**
-         * Round robin add them to the work queues of the searcher.
-         */
-        ArrayList<Node<Prob>>[] workQueues = new ArrayList[poolSize];
+        
+        // Round robin add them to the work queues of the searcher.
+        List<Node<Prob>>[] workQueues = new List[poolSize];
         for (int i = 0; i < startingNodes.size(); i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
@@ -35,16 +29,16 @@ public class Main {
     public static void main(String[] args) {
         int poolSize = Runtime.getRuntime().availableProcessors();
         /**
+         * TODO: 
          * Generate root node from input file
          */
         Node<Prob> root = null;
 
        
-        ArrayList<Node<Prob>>[] workQueues = makeWorkQueues(poolSize, root);
+        List<Node<Prob>>[] workQueues = makeWorkQueues(poolSize, root);
         
-        /**
-         * create worker threads
-         */
+        
+        // create worker threads 
         ExecutorService pool = Executors.newFixedThreadPool(poolSize);
         Searcher[] searchers = new Searcher[poolSize];
         for (int i = 0; i < poolSize; i++) {
@@ -52,6 +46,7 @@ public class Main {
             pool.execute(searchers[i]);
         }
 
+        //TODO: replace this with termination condition
         try {
             Thread.sleep(5000);
         } catch (Exception e) {
@@ -61,5 +56,9 @@ public class Main {
         Model.shutdownSignal = true;
 
         pool.shutdown();
+
+        /**
+         * TODO: Printout Model.best;
+         */
     }
 }

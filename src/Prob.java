@@ -12,11 +12,13 @@ public class Prob implements Comparable<Prob> {
         solved = null;
     }
 
+    /**
+     * Lower score wins, IE 0 Is a perfect score;
+     * How nodes are scored against eachother, without respect to depth in the tree. If you want to also score by depth in the tree, do it in NODE.compareTo()
+     */
     @Override
     public int compareTo(Prob other) {
-
         return (this.score < other.score) ? -1 : 1;
-        //if this changes, will need to change model.newBest()
     }
 
     /**

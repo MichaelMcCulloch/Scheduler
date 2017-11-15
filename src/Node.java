@@ -21,6 +21,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
 
     /**
      * A node is better if it evaluates to a lower value, or if it is solved or unsolvable;
+     * This is where we would modify score based on depth
      */
     public int compareTo(Node<T> other) {
         // do something with depth here

@@ -1,11 +1,5 @@
-import java.awt.AlphaComposite;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Searcher
@@ -23,7 +17,7 @@ public class Searcher implements Runnable {
     private PriorityQueue<Node<Prob>> workQueue;
     private Node<Prob> best;
 
-    public Searcher(ArrayList<Node<Prob>> instances) {
+    public Searcher(List<Node<Prob>> instances) {
         workQueue = new PriorityQueue<>();
         this.workQueue.addAll(instances);
     }
@@ -35,26 +29,46 @@ public class Searcher implements Runnable {
     public void run() {
 
         while (!Model.shutdownSignal) {
-
             try {
                 Node<Prob> next = workQueue.remove();
+                List<Node<Prob>> children = div(next);
 
-                ArrayList<Node<Prob>> children = Model.div(next);
+                // Filter out solved/unsolved nodes, they don't belong on the queue;
+                List<Node<Prob>> unsolvedNodes = children.stream().filter(p -> !decideSolved(p))
+                        .collect(Collectors.toList());
 
-                /**
-                 * track best so far, put it on the shared 
-                 
-                if (best == null || candidate.compareTo(best) > 0)
-                    best = candidate;
-                */
-                workQueue.addAll(children);
+                workQueue.addAll(unsolvedNodes);
             } catch (Exception e) {
                 //TODO: handle exception
             }
-
         }
         //For testing
         System.out.println("Shutting down: " + workQueue.size());
+    }
+
+    /**
+     * The Div function, may be called by main
+     */
+    public static List<Node<Prob>> div(Node<Prob> instance) {
+
+        List<Node<Prob>> n = new ArrayList<>();
+        return n;
+    }
+
+    /**
+     * If the instance is not solved/unsolvable, return false;
+     * Otherwise, if it is Solved, check if it's the best;
+     * If it is unsolvable, just return true;
+     */
+    private static boolean decideSolved(Node<Prob> instance) {
+        return false;
+    }
+
+    private void checkBest(Node<Prob> instance) {
+        if (best == null || instance.getInstance().compareTo(best.getInstance()) < 0) {
+            best = instance;
+            Model.checkBest(instance);
+        }
     }
 
 }
