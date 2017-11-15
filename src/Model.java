@@ -23,12 +23,10 @@ public class Model {
     public static Node<Prob> bestNode;
     private static Lock bestLock = new ReentrantLock(true);
     public static volatile boolean shutdownSignal;
-
-    public PriorityBlockingQueue<Node<Prob>> queue;
+    private Node<Prob> root;
 
     public Model(Node<Prob> root) {
-        queue = new PriorityBlockingQueue<>();
-        queue.add(root);
+        this.root = root;
     }
 
     public static void newBest(Node<Prob> candidate) {
@@ -40,42 +38,14 @@ public class Model {
     }
 
     /**
-     * Global Div function
+     * Global Div function, may be called by multiple threads
+     * Mark nodes solved or unsolved here
+     * Mark best node here
      */
-    public static ArrayList<Node<Integer>> div(Node<Integer> instance) {
+    public static ArrayList<Node<Prob>> div(Node<Prob> instance) {
 
-        ArrayList<Node<Integer>> n = new ArrayList<>();
+        ArrayList<Node<Prob>> n = new ArrayList<>();
 
-        for (int j = 0; j < 50; j++) {
-            n.add(new Node<Integer>(instance, instance.getInstance() + j));
-        }
         return n;
     }
-
-    public static void main(String[] args) {
-
-
-        Node<Integer> root = new Node<Integer>(null, 0);
-        int poolSize = 8;
-        ExecutorService pool = Executors.newFixedThreadPool(poolSize);
-
-        Searcher[] searchers = new Searcher[poolSize];
-        for (int i = 0; i < poolSize; i++) {
-            ArrayList<Node<Integer>> next = new ArrayList<>();
-            next.add(new Node<Integer>(root, i + 1));
-
-            Searcher k = new Searcher(next);
-            searchers[i] = k;
-            pool.execute(k);
-        }
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            //TODO: handle exception
-        }
-        shutdownSignal = true;
-
-        pool.shutdown();
-    }
-
 }

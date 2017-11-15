@@ -20,10 +20,10 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class Searcher implements Runnable {
 
-    private PriorityQueue<Node<Integer>> workQueue;
-    private Node<Integer> best;
+    private PriorityQueue<Node<Prob>> workQueue;
+    private Node<Prob> best;
 
-    public Searcher(ArrayList<Node<Integer>> instances) {
+    public Searcher(ArrayList<Node<Prob>> instances) {
         workQueue = new PriorityQueue<>();
         this.workQueue.addAll(instances);
     }
@@ -37,9 +37,9 @@ public class Searcher implements Runnable {
         while (!Model.shutdownSignal) {
 
             try {
-                Node<Integer> next = workQueue.remove();
+                Node<Prob> next = workQueue.remove();
 
-                ArrayList<Node<Integer>> children = Model.div(next);
+                ArrayList<Node<Prob>> children = Model.div(next);
 
                 /**
                  * track best so far, put it on the shared 

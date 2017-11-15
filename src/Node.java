@@ -15,9 +15,10 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         depth = (parent == null) ? 0 : parent.depth + 1;
     }
 
-    public T getInstance(){
+    public T getInstance() {
         return instance;
     }
+
     /**
      * A node is better if it evaluates to a lower value, or if it is solved or unsolvable;
      */
