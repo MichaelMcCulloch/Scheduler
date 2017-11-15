@@ -21,6 +21,7 @@ public class Prob implements Comparable<Prob> {
 
     /**
     * TODO: Evaluate the instance
+    * Used to rank a prob in the work queue
     * @param instance The problem to be evaluated
     */
     private int fLEAF() {

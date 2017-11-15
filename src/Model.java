@@ -22,6 +22,7 @@ public class Model {
 
     public static Node<Prob> bestNode;
     private static Lock bestLock = new ReentrantLock(true);
+    public static volatile boolean shutdownSignal;
 
     public PriorityBlockingQueue<Node<Prob>> queue;
 
@@ -38,17 +39,21 @@ public class Model {
         bestLock.unlock();
     }
 
+    /**
+     * Global Div function
+     */
     public static ArrayList<Node<Integer>> div(Node<Integer> instance) {
 
         ArrayList<Node<Integer>> n = new ArrayList<>();
 
         for (int j = 0; j < 50; j++) {
-            n.add(new Node(instance, instance.getInstance() + j));
+            n.add(new Node<Integer>(instance, instance.getInstance() + j));
         }
         return n;
     }
 
     public static void main(String[] args) {
+
 
         Node<Integer> root = new Node<Integer>(null, 0);
         int poolSize = 8;
@@ -68,10 +73,8 @@ public class Model {
         } catch (Exception e) {
             //TODO: handle exception
         }
+        shutdownSignal = true;
 
-        for (int i = 0; i < poolSize; i++) {
-            searchers[i].shutdown();
-        }
         pool.shutdown();
     }
 

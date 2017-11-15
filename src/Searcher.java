@@ -20,8 +20,6 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class Searcher implements Runnable {
 
-    boolean shutdown = false;
-
     private PriorityQueue<Node<Integer>> workQueue;
     private Node<Integer> best;
 
@@ -30,48 +28,16 @@ public class Searcher implements Runnable {
         this.workQueue.addAll(instances);
     }
 
-    public void shutdown() {
-        shutdown = true;
-    }
-
-    private ArrayList<Node<Integer>> layeredSearch(int depth, ArrayList<Node<Integer>> accumulator) {
-
-        if (depth == 0)
-            return accumulator;
-        ArrayList<Node<Integer>> next = new ArrayList<>();
-
-        for (Node<Integer> node : accumulator) {
-            next.addAll(processNode(node));
-        }
-
-        return layeredSearch(depth - 1, next);
-
-    }
-
-    private ArrayList<Node<Integer>> processNode(Node<Integer> node) {
-
-        /**
-         * track best so far, put it on the shared 
-         
-        if (best == null || candidate.compareTo(best) > 0)
-            best = candidate;
-        */
-        ArrayList<Node<Integer>> next = Model.div(node);
-        return next;
-    }
-
     /**
-     
+     * Run the search control starting with the first node in the workQueue
      */
     @Override
     public void run() {
 
-        while (!shutdown) {
+        while (!Model.shutdownSignal) {
 
             try {
                 Node<Integer> next = workQueue.remove();
-                ArrayList<Node<Integer>> temp = new ArrayList<>();
-                temp.add(next);
 
                 ArrayList<Node<Integer>> children = Model.div(next);
 
@@ -87,6 +53,7 @@ public class Searcher implements Runnable {
             }
 
         }
+        //For testing
         System.out.println("Shutting down: " + workQueue.size());
     }
 
