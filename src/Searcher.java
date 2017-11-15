@@ -1,6 +1,7 @@
 import java.awt.AlphaComposite;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,27 +21,23 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class Searcher implements Runnable {
 
     boolean shutdown = false;
-    /**
-     * No null nodes
-     */
-    private Queue<Node<Integer>> workQueue;
 
+    private PriorityQueue<Node<Integer>> workQueue;
     private Node<Integer> best;
 
-    public Searcher(Queue<Node<Integer>> workQueue) {
-        this.workQueue = workQueue;
+    public Searcher(ArrayList<Node<Integer>> instances) {
+        workQueue = new PriorityQueue<>();
+        this.workQueue.addAll(instances);
     }
 
     public void shutdown() {
         shutdown = true;
     }
 
+    private ArrayList<Node<Integer>> layeredSearch(int depth, ArrayList<Node<Integer>> accumulator) {
 
-    private ArrayList<Node<Integer>> layeredSearch(int depth, ArrayList<Node<Integer>> accumulator){
-
-        if (depth == 0) return accumulator;
-
-
+        if (depth == 0)
+            return accumulator;
         ArrayList<Node<Integer>> next = new ArrayList<>();
 
         for (Node<Integer> node : accumulator) {
@@ -51,7 +48,7 @@ public class Searcher implements Runnable {
 
     }
 
-    private ArrayList<Node<Integer>> processNode(Node<Integer> node){
+    private ArrayList<Node<Integer>> processNode(Node<Integer> node) {
 
         /**
          * track best so far, put it on the shared 
@@ -59,10 +56,9 @@ public class Searcher implements Runnable {
         if (best == null || candidate.compareTo(best) > 0)
             best = candidate;
         */
-        ArrayList<Node<Integer>> next = div(node);
+        ArrayList<Node<Integer>> next = Model.div(node);
         return next;
     }
-
 
     /**
      
@@ -77,25 +73,21 @@ public class Searcher implements Runnable {
                 ArrayList<Node<Integer>> temp = new ArrayList<>();
                 temp.add(next);
                 
-                ArrayList<Node<Integer>> children = div(next);
+                ArrayList<Node<Integer>> children = Model.div(next);
 
-                
+                /**
+                 * track best so far, put it on the shared 
+                 
+                if (best == null || candidate.compareTo(best) > 0)
+                    best = candidate;
+                */
                 workQueue.addAll(children);
             } catch (Exception e) {
                 //TODO: handle exception
             }
 
         }
-    }
-
-    private ArrayList<Node<Integer>> div(Node<Integer> instance) {
-
-        ArrayList<Node<Integer>> n = new ArrayList<>();
-    
-        for (int j = 0; j < 50; j++) {
-            n.add(new Node(instance, instance.getInstance() + j)); 
-        }
-        return n;
+        System.out.println("Shutting down: " + workQueue.size());
     }
 
 }
