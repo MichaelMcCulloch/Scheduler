@@ -59,6 +59,7 @@ public class Searcher implements Runnable {
      * If the instance is not solved/unsolvable, return false;
      * Otherwise, if it is Solved, check if it's the best;
      * If it is unsolvable, just return true;
+     * if it is below the bound, discard it
      */
     private static boolean decideSolved(Node<Prob> instance) {
         return false;
