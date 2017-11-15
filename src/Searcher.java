@@ -1,4 +1,9 @@
+import java.awt.AlphaComposite;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -14,16 +19,50 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class Searcher implements Runnable {
 
+    boolean shutdown = false;
     /**
      * No null nodes
      */
-    private WorkQueue<Node<Prob>> workQueue;
+    private Queue<Node<Integer>> workQueue;
 
-    private Node<Prob> best;
+    private Node<Integer> best;
 
-    public Searcher(WorkQueue<Node<Prob>> workQueue) {
+    public Searcher(Queue<Node<Integer>> workQueue) {
         this.workQueue = workQueue;
     }
+
+    public void shutdown() {
+        shutdown = true;
+    }
+
+
+    private ArrayList<Node<Integer>> layeredSearch(int depth, ArrayList<Node<Integer>> accumulator){
+
+        if (depth == 0) return accumulator;
+
+
+        ArrayList<Node<Integer>> next = new ArrayList<>();
+
+        for (Node<Integer> node : accumulator) {
+            next.addAll(processNode(node));
+        }
+
+        return layeredSearch(depth - 1, next);
+
+    }
+
+    private ArrayList<Node<Integer>> processNode(Node<Integer> node){
+
+        /**
+         * track best so far, put it on the shared 
+         
+        if (best == null || candidate.compareTo(best) > 0)
+            best = candidate;
+        */
+        ArrayList<Node<Integer>> next = div(node);
+        return next;
+    }
+
 
     /**
      
@@ -31,25 +70,32 @@ public class Searcher implements Runnable {
     @Override
     public void run() {
 
-        while (true) {
+        while (!shutdown) {
+            
+            try {
+                Node<Integer> next = workQueue.remove();
+                ArrayList<Node<Integer>> temp = new ArrayList<>();
+                temp.add(next);
+                
+                ArrayList<Node<Integer>> children = div(next);
 
-            Node<Prob> next = workQueue.remove();
+                
+                workQueue.addAll(children);
+            } catch (Exception e) {
+                //TODO: handle exception
+            }
 
-            ArrayList<Node<Prob>> children = div(next);
-
-            /**
-             * track best so far, put it on the shared 
-             */
-            if (best == null || candidate.compareTo(best) > 0)
-                best = candidate;
-
-            workQueue.add(children);
         }
     }
 
-    private ArrayList<Node<Prob>> div(Node<Prob> instance) {
+    private ArrayList<Node<Integer>> div(Node<Integer> instance) {
 
-        return null;
+        ArrayList<Node<Integer>> n = new ArrayList<>();
+    
+        for (int j = 0; j < 50; j++) {
+            n.add(new Node(instance, instance.getInstance() + j)); 
+        }
+        return n;
     }
 
 }
