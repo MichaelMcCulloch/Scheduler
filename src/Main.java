@@ -61,8 +61,5 @@ public class Main {
         Model.shutdownSignal = true;
 
         pool.shutdown();
-
-        ForkJoinPool p = new ForkJoinPool()
     }
-
 }
