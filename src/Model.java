@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Model {
 
     public static Node<Prob> bestNode;
-    private static Lock bestLock  = new ReentrantLock(true);
+    private static Lock bestLock = new ReentrantLock(true);
 
     public PriorityBlockingQueue<Node<Prob>> queue;
 
@@ -39,14 +39,14 @@ public class Model {
     }
 
     public static ArrayList<Node<Integer>> div(Node<Integer> instance) {
-        
-                ArrayList<Node<Integer>> n = new ArrayList<>();
-            
-                for (int j = 0; j < 50; j++) {
-                    n.add(new Node(instance, instance.getInstance() + j)); 
-                }
-                return n;
-            }
+
+        ArrayList<Node<Integer>> n = new ArrayList<>();
+
+        for (int j = 0; j < 50; j++) {
+            n.add(new Node(instance, instance.getInstance() + j));
+        }
+        return n;
+    }
 
     public static void main(String[] args) {
 
@@ -57,7 +57,7 @@ public class Model {
         Searcher[] searchers = new Searcher[poolSize];
         for (int i = 0; i < poolSize; i++) {
             ArrayList<Node<Integer>> next = new ArrayList<>();
-            next.add(new Node<Integer>(root, i+1));
+            next.add(new Node<Integer>(root, i + 1));
 
             Searcher k = new Searcher(next);
             searchers[i] = k;

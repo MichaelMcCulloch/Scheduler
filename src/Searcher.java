@@ -67,12 +67,12 @@ public class Searcher implements Runnable {
     public void run() {
 
         while (!shutdown) {
-            
+
             try {
                 Node<Integer> next = workQueue.remove();
                 ArrayList<Node<Integer>> temp = new ArrayList<>();
                 temp.add(next);
-                
+
                 ArrayList<Node<Integer>> children = Model.div(next);
 
                 /**
