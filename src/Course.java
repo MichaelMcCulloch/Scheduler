@@ -1,0 +1,7 @@
+/**
+ * Course
+ */
+public class Course {
+
+    
+}

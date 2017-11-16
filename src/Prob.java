@@ -25,10 +25,14 @@ public class Prob implements Comparable<Prob> {
         return (this.score < other.score) ? -1 : 1;
     }
 
+    public List<Slot> getAssigned(){
+        return timeSlots;
+    }
+
     /**
     * TODO: Evaluate the instance
     * Used to rank a prob in the work queue
-    * @param instance The problem to be evaluated
+    * @param node The problem to be evaluated
     */
     private int fLEAF() {
         return 0;

@@ -33,9 +33,15 @@ public class Searcher implements Runnable {
                 Node<Prob> next = workQueue.remove();
                 List<Node<Prob>> children = div(next);
 
+                // Filter out nodes which violate the hard constraints
+                List<Node<Prob>> satisfactory = children.stream().filter(
+                    p -> constr( p.getInstance() ))
+                    .collect(Collectors.toList());
+
                 // Filter out solved/unsolved nodes, they don't belong on the queue;
-                List<Node<Prob>> unsolvedNodes = children.stream().filter(p -> !decideSolved(p))
-                        .collect(Collectors.toList());
+                List<Node<Prob>> unsolvedNodes = satisfactory.stream().filter(
+                    p -> !decideSolved( p.getInstance() ))
+                    .collect(Collectors.toList());
 
                 workQueue.addAll(unsolvedNodes);
             } catch (Exception e) {
@@ -49,12 +55,35 @@ public class Searcher implements Runnable {
     /**
      * The Div function, may be called by main
      */
-    public static List<Node<Prob>> div(Node<Prob> instance) {
+    public static List<Node<Prob>> div(Node<Prob> node) {
         List<Node<Prob>> n = new ArrayList<>();
 
+        int selected = 0;
+        List<Slot> available = Model.getSlots();
+        List<Slot> allocated = node.getInstance().getAssigned();
 
-        
+        while (allocated.get(selected) != null) {
+            selected++;
+        } // find first available slot to fill.
+        // Iterate through all available slots
+        for (Slot t : available) {
+            //Prepare a fresh copy
+            List<Slot> newAssignment = new ArrayList<>(allocated.size());
+            Collections.copy(newAssignment, allocated);
+
+            //assign the course to the timeslot
+            newAssignment.set(selected, t);
+            Node<Prob> next = new Node<Prob>(node, new Prob(newAssignment));
+            n.add(next);
+        }
         return n;
+    }
+
+    /**
+     * Decide if a problem instance meets the hard constraints
+     */
+    private boolean constr(Prob instance) {
+        return true;
     }
 
     /**
@@ -63,7 +92,7 @@ public class Searcher implements Runnable {
      * If it is unsolvable, just return true;
      * if it is below the bound, discard it
      */
-    private static boolean decideSolved(Node<Prob> instance) {
+    private static boolean decideSolved(Prob instance) {
         return false;
     }
 
