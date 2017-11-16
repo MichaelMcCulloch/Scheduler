@@ -24,8 +24,9 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * This is where we would modify score based on depth
      */
     public int compareTo(Node<T> other) {
-        // do something with depth here
-        return (instance.compareTo(other.instance));
+        if (this.depth < other.depth) return -1;
+        else if (this.depth > other.depth) return 1;
+        else return (instance.compareTo(other.instance));
     }
 
 }

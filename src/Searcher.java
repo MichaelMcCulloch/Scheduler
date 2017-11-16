@@ -50,8 +50,10 @@ public class Searcher implements Runnable {
      * The Div function, may be called by main
      */
     public static List<Node<Prob>> div(Node<Prob> instance) {
-
         List<Node<Prob>> n = new ArrayList<>();
+
+
+        
         return n;
     }
 

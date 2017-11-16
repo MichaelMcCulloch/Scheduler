@@ -6,6 +6,7 @@ import java.util.concurrent.locks.*;
 
 public class Model {
 
+    
     private volatile static Node<Prob> bestNode;
     private static Lock bestLock = new ReentrantLock(true);
     public static volatile boolean shutdownSignal;

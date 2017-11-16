@@ -1,15 +1,19 @@
+import java.util.List;
+
 /**
  * Prob implements Comparable<Prob>
  */
 public class Prob implements Comparable<Prob> {
 
+    List<Slot> timeSlots;
     private int score; // so it can be ranked in a priority queue
     private Boolean solved;
 
-    public Prob() {
+    public Prob(List<Slot> timeSlots) {
         // Only want to eval fLEAF once. (and the searcher should be the one to do it)
         score = fLEAF();
         solved = null;
+        this.timeSlots = timeSlots;
     }
 
     /**
