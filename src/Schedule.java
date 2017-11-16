@@ -14,21 +14,23 @@ public class Schedule implements Comparable<Schedule> {
 
 
 
+
     public Schedule(Schedule parent, List<Slot> assignments){
         this.assignments = assignments;
         this.parent = parent;
         this.depth = parent.depth;
-        this.score = fLEAF();
+        this.score = eval();
     }
 
     public List<Slot> getAssigned(){
         return assignments;
     }
 
-    @Override
+    //Serves purpose of fLEAF;
+    @Override    
     public int compareTo(Schedule other) {
-        if (this.depth < other.depth) return -1;
-        else if (this.depth > other.depth) return 1;
+        if (this.depth > other.depth) return -1;
+        else if (this.depth < other.depth) return 1;
         else return (betterThan(other)) ? -1 : 1;
     }
 
@@ -36,7 +38,7 @@ public class Schedule implements Comparable<Schedule> {
         return (this.score > other.score);
     }
 
-    private int fLEAF(){
+    private int eval(){
         return 0;
     }
 
