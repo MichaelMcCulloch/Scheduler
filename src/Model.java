@@ -14,7 +14,6 @@ public class Model {
     
     private volatile static Schedule bestNode;
     private static Lock bestLock = new ReentrantLock(true);
-    public static volatile boolean shutdownSignal;
 
     public Model(List<Slot> slots, List<Course> courses) {
         this.allCourses = courses;

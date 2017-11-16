@@ -1,6 +1,5 @@
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -17,10 +16,15 @@ import java.util.stream.Collectors;
 public class Searcher implements Runnable {
 
     private PriorityQueue<Schedule> workQueue;
+    private static volatile boolean shutdownSignal = false;
     private Schedule best;
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
+    }
+
+    public static void stop() {
+        shutdownSignal = true;
     }
 
     /**
@@ -29,19 +33,11 @@ public class Searcher implements Runnable {
     @Override
     public void run() {
 
-        while (!Model.shutdownSignal) {
+        while (!shutdownSignal) {
             try {
                 Schedule next = workQueue.remove();
                 List<Schedule> children = next.div(checkBest);
-
-                // Filter out nodes which violate the hard constraints and which are solved
-                List<Schedule> unsolvedNodes = children.stream()
-                        .filter(p -> (
-                                p.constr() && 
-                                !p.solved()))
-                        .collect(Collectors.toList());
-
-                workQueue.addAll(unsolvedNodes);
+                workQueue.addAll(children);
             } catch (Exception e) {
                 //TODO: handle exception
             }
@@ -49,16 +45,15 @@ public class Searcher implements Runnable {
         //For testing
         System.out.println("Shutting down: " + workQueue.size());
     }
-    
+
     //passing a function as a parameter
     Consumer<Schedule> checkBest = new Consumer<Schedule>() {
-        public void accept(Schedule sched){
+        public void accept(Schedule sched) {
             if (best == null || sched.betterThan(best)) {
                 best = sched;
                 Model.checkBest.accept(sched);
             }
         }
     };
-
 
 }

@@ -53,8 +53,7 @@ public class Main {
             //TODO: handle exception
         }
 
-        Model.shutdownSignal = true;
-
+        Searcher.stop();
         pool.shutdown();
 
         /**
