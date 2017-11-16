@@ -33,15 +33,12 @@ public class Searcher implements Runnable {
                 Node<Prob> next = workQueue.remove();
                 List<Node<Prob>> children = div(next);
 
-                // Filter out nodes which violate the hard constraints
-                List<Node<Prob>> satisfactory = children.stream().filter(
-                    p -> constr( p.getInstance() ))
-                    .collect(Collectors.toList());
-
-                // Filter out solved/unsolved nodes, they don't belong on the queue;
-                List<Node<Prob>> unsolvedNodes = satisfactory.stream().filter(
-                    p -> !decideSolved( p.getInstance() ))
-                    .collect(Collectors.toList());
+                // Filter out nodes which violate the hard constraints and which are solved
+                List<Node<Prob>> unsolvedNodes = children.stream()
+                        .filter(p -> (
+                                constr(p.getInstance()) && 
+                                !solved(p.getInstance())))
+                        .collect(Collectors.toList());
 
                 workQueue.addAll(unsolvedNodes);
             } catch (Exception e) {
@@ -65,7 +62,7 @@ public class Searcher implements Runnable {
         while (allocated.get(selected) != null) {
             selected++;
         } // find first available slot to fill.
-        // Iterate through all available slots
+          // Iterate through all available slots
         for (Slot t : available) {
             //Prepare a fresh copy
             List<Slot> newAssignment = new ArrayList<>(allocated.size());
@@ -92,7 +89,7 @@ public class Searcher implements Runnable {
      * If it is unsolvable, just return true;
      * if it is below the bound, discard it
      */
-    private static boolean decideSolved(Prob instance) {
+    private boolean solved(Prob instance) {
         return false;
     }
 
