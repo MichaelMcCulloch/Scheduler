@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,15 +12,31 @@ public class Schedule implements Comparable<Schedule> {
     private Map<Course,Slot> assignments;
     private Schedule parent;
     private int depth, score;
+    private Map<Slot, Integer> counters;
 
 
 
 
     public Schedule(Schedule parent, Map<Course,Slot> assignments){
-        this.assignments = assignments;
+
+        //fresh copy of assignments
+        this.assignments = new HashMap<>();
+        for (Entry<Course,Slot> var : assignments.entrySet()) {
+            this.assignments.put(var.getKey(), var.getValue());
+        }
         this.parent = parent;
         this.depth = parent.depth;
         this.score = eval();
+    }
+
+    public Schedule(Schedule parent, Map<Course,Slot> assignments, Map<Slot, Integer> counters){
+        this(parent, assignments);
+        //fresh copy of Counters
+        this.counters = new HashMap<>();
+        for (Entry<Slot,Integer> var : counters.entrySet()) {
+            this.counters.put(var.getKey(), var.getValue());
+        }
+        
     }
 
     public Map<Course, Slot> getAssigned(){
@@ -41,6 +58,20 @@ public class Schedule implements Comparable<Schedule> {
     private int eval(){
         return 0;
     }
+    private int evalMinFilled(){
+
+    }
+
+    private int evalPref(){
+
+    }
+
+    private int evalPair(){
+
+    }
+    private int evalSecDiff(){
+        
+    }
 
     /**
      * The Div function, may be called by main
@@ -49,6 +80,8 @@ public class Schedule implements Comparable<Schedule> {
      */
     public List<Schedule> div(Consumer<Schedule> completion) {
         List<Schedule> n = new ArrayList<>();
+
+
 
         /**
          * Filter out nodes which violate the hard constraints and which are solved, 
