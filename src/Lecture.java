@@ -10,10 +10,4 @@ public class Lecture implements Course {
     public boolean byName(String name) {
         return this.name.equals(name);
     }
-
-    @Override
-    public boolean isLecture() {
-        return true;
-    }
-
 }

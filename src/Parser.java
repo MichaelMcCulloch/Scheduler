@@ -8,7 +8,6 @@ import java.nio.file.Files;
  */
 public class Parser {
 
-    
     private String name;
     private List<CourseSlot> courseSlots;
     private List<LabSlot> labSlots;
@@ -46,7 +45,7 @@ public class Parser {
         while (!q.remove().equals("Name:"));
         return q.remove();
     }
-
+    
     private List<CourseSlot> parseCourseSlots(Queue<String> q) {
         while (!q.remove().equals("Courseslots:"));
         List<CourseSlot> cSlots = new ArrayList<>();
@@ -91,6 +90,7 @@ public class Parser {
             String[] p = next.split(",");
             Course a = findByName(p[0]);
             Course b = findByName(p[1]);
+            if (a == null || b == null) continue;
             nc.add(new Pair<Course,Course>(a, b));
         }
         return nc;
@@ -104,6 +104,7 @@ public class Parser {
             String[] p = next.split(",");
             Course a = findByName(p[0]);
             Course b = findByName(p[1]);
+            if (a == null || b == null) continue;
             pairs.add(new Pair<Course,Course>(a, b));
         }
         return pairs;
@@ -115,11 +116,9 @@ public class Parser {
         while (!q.peek().equals("")) {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
-            Course c = findByName(cdtTuple[0]);
-            if (c == null) continue;
-            Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
-            if (s == null) continue;
-            nope.put(c, s);
+            Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
+            if (cs == null) continue;
+            nope.put(cs.fst(), cs.snd());
         }
         return nope;
     }
@@ -130,11 +129,9 @@ public class Parser {
         while (!q.isEmpty() && !q.peek().equals("")) {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
-            Course c = findByName(cdtTuple[0]);
-            if (c == null) continue;
-            Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
-            if (s == null) continue;
-            yes.put(c, s);
+            Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
+            if (cs == null) continue;
+            yes.put(cs.fst(), cs.snd());
         }
         return yes;
     }
@@ -145,14 +142,20 @@ public class Parser {
         while (!q.peek().equals("")) {
             String next = q.remove();
             String[] dtcpTuple = next.split(",");
-            Course c = findByName(dtcpTuple[2]);
-            if (c == null) continue;
-            Slot s = findByDayTime(c.isLecture(), dtcpTuple[0], dtcpTuple[1]);
-            if (s == null) continue;
+            Pair<Course,Slot> cs = getCourseSlotPair(dtcpTuple[2],  dtcpTuple[0], dtcpTuple[1]);
+            if (cs == null) continue;
             Integer value = Integer.parseInt(dtcpTuple[3]);
-            prefs.add(new Triple<Course,Slot,Integer>(c, s, value));
+            prefs.add(new Triple<Course,Slot,Integer>(cs.fst(), cs.snd(), value));
         }
         return prefs;
+    }
+
+    private Pair<Course,Slot> getCourseSlotPair(String courseID, String slotDay, String slotHour){
+        Course c = findByName(courseID);
+        if (c == null) return null;
+        Slot s = findByDayTime(c instanceof Lecture, slotDay, slotHour);
+        if (s == null) return null;
+        return new Pair<Course,Slot>(c,s);
     }
 
     private Course findByName(String identifier){

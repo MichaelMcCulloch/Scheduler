@@ -19,8 +19,4 @@ public class CourseSlot implements Slot {
         return (this.day.equals(day )&& this.hour.equals(time));
     }
 
-    @Override
-    public boolean isLectSlot() {
-        return true;
-    }
 }
