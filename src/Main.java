@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -26,13 +28,23 @@ public class Main {
         return workQueues;
     }
 
+
+    
+
     public static void main(String[] args) {
         int poolSize = Runtime.getRuntime().availableProcessors();
-        /**
-         * TODO: 
-         * Generate root node from input file
-         */
-        Schedule root = null;
+        
+        File f;
+        Parser p;
+        try {
+            f = new File("test.txt");
+            p = new Parser(f);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+            return;
+        }
+
+        Schedule root = p.getInitialInstance();
 
        
         List<Schedule>[] workQueues = makeWorkQueues(poolSize, root);

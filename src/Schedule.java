@@ -8,21 +8,21 @@ import java.util.stream.Collectors;
  */
 public class Schedule implements Comparable<Schedule> {
 
-    private List<Slot> assignments;
+    private Map<Course,Slot> assignments;
     private Schedule parent;
     private int depth, score;
 
 
 
 
-    public Schedule(Schedule parent, List<Slot> assignments){
+    public Schedule(Schedule parent, Map<Course,Slot> assignments){
         this.assignments = assignments;
         this.parent = parent;
         this.depth = parent.depth;
         this.score = eval();
     }
 
-    public List<Slot> getAssigned(){
+    public Map<Course, Slot> getAssigned(){
         return assignments;
     }
 
@@ -49,25 +49,6 @@ public class Schedule implements Comparable<Schedule> {
      */
     public List<Schedule> div(Consumer<Schedule> completion) {
         List<Schedule> n = new ArrayList<>();
-
-        int selected = 0;
-        List<Slot> available = Model.getSlots();
-        List<Slot> allocated = getAssigned();
-
-        while (allocated.get(selected) != null) {
-            selected++;
-        } // find first available slot to fill.
-          // Iterate through all available slots
-        for (Slot t : available) {
-            //Prepare a fresh copy
-            List<Slot> newAssignment = new ArrayList<>(allocated.size());
-            Collections.copy(newAssignment, allocated);
-
-            //assign the course to the timeslot
-            newAssignment.set(selected, t);
-            Schedule next = new Schedule(this, newAssignment);
-            n.add(next);
-        }
 
         /**
          * Filter out nodes which violate the hard constraints and which are solved, 

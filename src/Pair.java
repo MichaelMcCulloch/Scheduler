@@ -7,7 +7,8 @@ public class Pair<X, Y> {
     private Y secnd;
 
     public Pair(X fst, Y snd){
-
+        this.first = fst;
+        this.secnd = snd;
     }
 
     public X fst(){

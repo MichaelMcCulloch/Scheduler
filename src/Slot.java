@@ -1,16 +1,9 @@
 /**
  * Slot
  */
-public class Slot {
+public interface Slot {
 
+    public boolean byDayTime(String day, String time);
 
-	private String day, time;
-
-	public Slot(String data){
-
-	}
-
-	public boolean equals(String day, String time){
-		return this.day.equals(day) && this.time.equals(time);
-	}
+    public boolean isLectSlot();
 }

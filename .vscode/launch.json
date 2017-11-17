@@ -6,10 +6,19 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug (Launch)-Model<AndTree_Search>",
+            "name": "Debug (Launch)-Main<AndTree_Search>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "Model",
+            "mainClass": "Main",
+            "projectName": "AndTree_Search",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Parser<AndTree_Search>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "Parser",
             "projectName": "AndTree_Search",
             "args": ""
         },

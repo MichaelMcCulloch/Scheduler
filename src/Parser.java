@@ -8,147 +8,174 @@ import java.nio.file.Files;
  */
 public class Parser {
 
-    private String name;
-    private List<String> courses, labsTutorials;
-    private List<Slot> courseSlots, labTutSlots;
-    private List<Pair<String, String>> incompatible, pair;
-    private List<Pair<String, Slot>> unwanted, preferred, partAssignCourse, partAssignLT;
     
+    private String name;
+    private List<CourseSlot> courseSlots;
+    private List<LabSlot> labSlots;
+    private List<Lecture> courseList;
+    private List<Lab> labList;
+    private Map<Course, Slot> unwanted, partAssign;
+    private List<Triple<Course, Slot, Integer>> preferences;
+    private List<Pair<Course, Course>> together, incompatible;
 
     private Schedule initialInstance;
 
-
-
-
-    public Parser(File f) throws IOException{
-        Scanner input = new Scanner(new FileReader(f));
-        Queue<String> lines = new LinkedList<String>(Files.readAllLines(f.toPath(),Charset.defaultCharset())); //java weird about files
-        for (String line : lines) {
-            line = line.replaceAll(" ", "");
-            line = line.replaceAll("\t", "");
+    public Parser(File f) throws FileNotFoundException {
+    	Scanner fileScanner = new Scanner(f);
+        List<String> lines = new ArrayList<>();
+        while (fileScanner.hasNextLine()) {
+        	lines.add(fileScanner.nextLine().replaceAll("\\s+", ""));
         }
 
-        input.close();
+        Queue<String> pending = new LinkedList<String>(lines);
+        this.name = parseName(pending);
+        this.courseSlots = parseCourseSlots(pending);
+        this.labSlots = parseLabSlots(pending);
+        this.courseList = parseCourses(pending);
+        this.labList = parseLabs(pending);
+        this.incompatible = parseIncompatible(pending);
+        this.unwanted = parseUnwanted(pending);
+        this.preferences = parsePreferences(pending);
+        this.together = parseTogether(pending);
+        this.partAssign = parsePartAssign(pending);
+
+        initialInstance = new Schedule(null, partAssign);
     }
 
     private String parseName(Queue<String> q) {
-        while (!q.remove().equals("Name:\n"));
+        while (!q.remove().equals("Name:"));
         return q.remove();
     }
 
-    private List<Slot> courseSlots(Queue<String> q) {
-        while (!q.remove().equals("Course slots:\n"));
-        List<Slot> slots = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
-            slots.add(new Slot(q.remove()));
+    private List<CourseSlot> parseCourseSlots(Queue<String> q) {
+        while (!q.remove().equals("Courseslots:"));
+        List<CourseSlot> cSlots = new ArrayList<>();
+        while (!q.peek().equals("")) {
+            cSlots.add(new CourseSlot(q.remove()));
         }
-
-        return slots;
+        return cSlots;
     }
 
-    private List<Slot> labSlots(Queue<String> q) {
-        while (!q.remove().equals("Lab slots:\n"));
-        List<Slot> slots = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
-            slots.add(new Slot(q.remove()));
+    private List<LabSlot> parseLabSlots(Queue<String> q) {
+        while (!q.remove().equals("Labslots:"));
+        List<LabSlot> lSlots = new ArrayList<>();
+        while (!q.peek().equals("")) {
+            lSlots.add(new LabSlot(q.remove()));
         }
-
-        return slots;
+        return lSlots;
     }
-
-    private List<String> courses(Queue<String> q) {
-        while (!q.remove().equals("Courses:\n"));
-        List<String> courses = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
-            courses.add(q.remove());
+    
+    private List<Lecture> parseCourses(Queue<String> q) {
+        while (!q.remove().equals("Courses:"));
+        List<Lecture> courses = new ArrayList<>();
+        while (!q.peek().equals("")) {
+            courses.add(new Lecture(q.remove()));
         }
-
-        
         return courses;
     }
 
-    private List<String> labs(Queue<String> q) {
-        while (!q.remove().equals("Labs:\n"));
-        List<String> labs = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
-            labs.add(q.remove());
+    private List<Lab> parseLabs(Queue<String> q) {
+        while (!q.remove().equals("Labs:"));
+        List<Lab> labs = new ArrayList<>();
+        while (!q.peek().equals("")) {
+            labs.add(new Lab(q.remove()));
         }
-
         return labs;
     }
 
-    private List<Pair<String,String>> notCompatible(Queue<String> q) {
-        while (!q.remove().equals("Not compatible:\n"));
-        List<Pair<String,String>> nc = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
+    private List<Pair<Course,Course>> parseIncompatible(Queue<String> q){
+        while (!q.remove().equals("Notcompatible:"));
+        List<Pair<Course,Course>> nc = new ArrayList<>();
+        while (!q.peek().equals("")) {
             String next = q.remove();
-            String[] pair = next.split(",");
-            nc.add(new Pair<String,String>(pair[0], pair[1]));
+            String[] p = next.split(",");
+            Course a = findByName(p[0]);
+            Course b = findByName(p[1]);
+            nc.add(new Pair<Course,Course>(a, b));
         }
         return nc;
     }
 
-    private List<Pair<String,String>> pair(Queue<String> q) {
-        while (!q.remove().equals("Pair:\n"));
-        List<Pair<String,String>> nc = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
+    private List<Pair<Course,Course>> parseTogether(Queue<String> q) {
+        while (!q.remove().equals("Pair:"));
+        List<Pair<Course,Course>> pairs = new ArrayList<>();
+        while (!q.peek().equals("")) {
             String next = q.remove();
-            String[] pair = next.split(",");
-            nc.add(new Pair<String,String>(pair[0], pair[1]));
+            String[] p = next.split(",");
+            Course a = findByName(p[0]);
+            Course b = findByName(p[1]);
+            pairs.add(new Pair<Course,Course>(a, b));
         }
-        return nc;
+        return pairs;
     }
 
-    private List<Pair<String,Slot>> unwanted(Queue<String> q) {
-        while (!q.remove().equals("Unwanted:\n"));
-        List<Pair<String,Slot>> nc = new ArrayList<>();
-        while (!q.peek().equals("\n")) {
+    private Map<Course,Slot> parseUnwanted(Queue<String> q) {
+        while (!q.remove().equals("Unwanted:"));
+        Map<Course,Slot> nope = new HashMap<>();
+        while (!q.peek().equals("")) {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
-
-            Pair<Boolean, Integer> pair1 = findCourse(cdtTuple[0]);
-            Pair<Boolean, Integer> pair2 = findSlot(cdtTuple[1], cdtTuple[2]);
-
+            Course c = findByName(cdtTuple[0]);
+            Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
+            nope.put(c, s);
         }
-        return nc;
-        
+        return nope;
     }
 
-    private List<Pair<String,Slot>> preferences(Queue<String> q) {
-        while (!q.remove().equals("Preferences:\n"));
-        
-    }
-
-    private List<Pair<String,Slot>> partAssign(Queue<String> q) {
-        while (!q.remove().equals("Partial Assignment:\n"));
-        
-    }
-    private Pair<Boolean,Integer> findCourse(String course){
-        boolean inCourseList = true;
-        int index = -1;
-        for (int i = 0; i < courses.size(); i++ ){
-            if (courses.get(i).equals(course)){
-                return new Pair<Boolean,Integer>(true, i);
-            }
-        } for (int i = 0; i < labsTutorials.size(); i++ ){
-            if (labsTutorials.get(i).equals(course)){
-                return new Pair<Boolean,Integer>(false, i);
-            }
+    private Map<Course,Slot> parsePartAssign(Queue<String> q) {
+        while (!q.remove().equals("Partialassignments:"));
+        Map<Course,Slot> yes = new HashMap<>();
+        while (!q.isEmpty() && !q.peek().equals("")) {
+            String next = q.remove();
+            String[] cdtTuple = next.split(",");
+            Course c = findByName(cdtTuple[0]);
+            Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
+            yes.put(c, s);
         }
+        return yes;
     }
-    private Pair<Boolean, Integer> findSlot(String day, String time){
-        boolean inCourseSlotList = true;
-        int index = -1;
 
-        for (int i = 0; i < courseSlots.size(); i++ ){
-            if (courseSlots.get(i).equals(day, time)){
-                return new Pair<Boolean,Integer>(true, i);
-            }
-        } for (int i = 0; i < labTutSlots.size(); i++ ){
-            if (labTutSlots.get(i).equals(day, time)){
-                return new Pair<Boolean,Integer>(false, i);
-            }
+    private List<Triple<Course, Slot, Integer>> parsePreferences(Queue<String> q) {
+        while (!q.remove().equals("Preferences:"));
+        List<Triple<Course, Slot, Integer>> prefs = new ArrayList<>();
+        while (!q.peek().equals("")) {
+            String next = q.remove();
+            String[] dtcpTuple = next.split(",");
+            Course c = findByName(dtcpTuple[2]);
+            if (c == null) continue;
+            Slot s = findByDayTime(c.isLecture(), dtcpTuple[0], dtcpTuple[1]);
+            if (s == null) continue;
+            Integer value = Integer.parseInt(dtcpTuple[3]);
+            prefs.add(new Triple<Course,Slot,Integer>(c, s, value));
+        }
+        return prefs;
+    }
+
+    private Course findByName(String identifier){
+        List<Course> allCourses = new ArrayList<>();
+        allCourses.addAll(labList);
+        allCourses.addAll(courseList);
+        for (Course var : allCourses) {
+            if (var.byName(identifier)) return var;
         }
         return null;
+    }
+
+    private Slot findByDayTime(boolean isLecture, String day, String hour){
+        if (isLecture) {
+            for (CourseSlot var : courseSlots) {
+                if (var.byDayTime(day, hour)) return var;
+            }
+            return null;
+        } else {
+            for (LabSlot var : labSlots) {
+                if (var.byDayTime(day, hour)) return var;
+            }
+            return null;
+        }
+    }
+
+    public Schedule getInitialInstance(){
+        return initialInstance;
     }
 }

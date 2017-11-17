@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 public class Model {
 
+    //This all needs to change. Maybe the parser should instantiate this? Maybe we don't use it at all
+
     private static List<Slot> allSlots;
     private static List<Course> allCourses;
 
