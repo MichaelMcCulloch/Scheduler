@@ -84,6 +84,30 @@ public class Schedule implements Comparable<Schedule> {
     public List<Schedule> div(Consumer<Schedule> completion) {
         List<Schedule> n = new ArrayList<>();
 
+        //find a class not used in the current assignment
+        Course assign = null;
+        for (Course c : Model.getCourses()) {
+            try {
+                assignments.get(c);
+                assign = c;
+            } catch (Exception e) {
+                break;
+            }
+        }
+        //for each slot, make children in which this course is in that slot
+        if (assign != null) {
+            List<Slot> slots;
+            if (assign instanceof Lecture){
+                slots = new ArrayList<>(Model.getCourseSlots());
+            } else {
+                slots = new ArrayList<>(Model.getLabSlots());
+            }
+            for (Slot s : slots) {
+                
+            }
+        } else {
+            //check if solved
+        }
 
 
         /**
