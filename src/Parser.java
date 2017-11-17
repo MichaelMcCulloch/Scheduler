@@ -24,7 +24,7 @@ public class Parser {
         List<String> lines = new ArrayList<>();
         // Accumulate and remove spaces, set to uppercase
         while (fileScanner.hasNextLine()) {
-        	lines.add(fileScanner.nextLine().replaceAll("\\s+", "").toUpperCase(u);
+        	lines.add(fileScanner.nextLine().replaceAll("\\s+", "").toUpperCase());
         }
 
         Queue<String> pending = new LinkedList<String>(lines);
@@ -40,6 +40,14 @@ public class Parser {
         this.partAssign = parsePartAssign(pending);
 
         initialInstance = new Schedule(null, partAssign);
+        Model m = Model.getInstance();
+        
+        List<Course> allCourses = new ArrayList<>();
+        allCourses.addAll(courseList);
+        allCourses.addAll(labList);
+        
+        m.setData(allCourses, labSlots, courseSlots, unwanted, preferences, together, incompatible);
+        
     }
 
     private String parseName(Queue<String> q) {
@@ -184,7 +192,7 @@ public class Parser {
         for (Slot var : searchThrough) {
             if (var.byDayTime(day, hour)) return var;
         }
-        System.out.println("Warning: " + ((isLecture) ? "Course" : "Lab") + "Slot" + day + " " + hour  + " not found");
+        System.out.println("Warning: " + ((isLecture) ? "Course" : "Lab") + " Slot " + day + " " + hour  + " not found");
         return null;
     }
 

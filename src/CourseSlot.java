@@ -18,5 +18,11 @@ public class CourseSlot implements Slot {
     public boolean byDayTime(String day, String time) {
         return (this.day.equals(day )&& this.hour.equals(time));
     }
+    
+    @Override
+    public String toString() {
+    	// TODO Auto-generated method stub
+    	return "LEC@" + day + ":" + hour;
+    }
 
 }

@@ -11,4 +11,9 @@ public class Lab implements Course {
     public boolean byName(String name) {
         return this.name.equals(name);
     }
+    @Override
+    public String toString() {
+    	// TODO Auto-generated method stub
+    	return name;
+    }
 }

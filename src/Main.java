@@ -13,18 +13,25 @@ public class Main {
         // Div it until there are more nodes than searchers
         Queue<Schedule> startingNodes = new LinkedList<>();
         startingNodes.add(root);
-        while (startingNodes.size() < poolSize){
-            startingNodes.addAll(startingNodes.remove().div(Model.checkBest));
+        
+        //might produce fewer than poolSize nodes
+        while (!startingNodes.isEmpty() && startingNodes.size() < poolSize){
+        	Schedule next = startingNodes.remove();
+        	List<Schedule> offspring = next.div(Model.getInstance().checkBest);
+        	if (offspring.isEmpty()) continue; //May not be done, could be no solutions available from that node
+            startingNodes.addAll(offspring);
         }
 
+        if (startingNodes.isEmpty()) return null;
+        if (startingNodes.size() < poolSize) poolSize = startingNodes.size();
         
-        // Round robin add them to the work queues of the searcher.
         List<Schedule>[] workQueues = new List[poolSize];
         for (int i = 0; i < startingNodes.size(); i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
             workQueues[i * poolSize].add(startingNodes.remove());
         }
+        
         return workQueues;
     }
 
@@ -38,6 +45,7 @@ public class Main {
         Parser p;
         try {
             Scanner user = new Scanner(System.in);
+            System.err.println("Enter the file name:");
             String filename = user.nextLine();
             f = new File(filename);
             p = new Parser(f);
@@ -48,9 +56,21 @@ public class Main {
 
         Schedule root = p.getInitialInstance();
 
-       
+        Model model = Model.getInstance();
+        
         List<Schedule>[] workQueues = makeWorkQueues(poolSize, root);
         
+        if (workQueues == null) {
+        	if (model.getBest() == null) {
+        		System.out.println("No solution found");
+        		return;
+        	} else {
+        		System.out.println(model.getBest().prettyPrint());
+        		return;
+        	}
+        } else if (workQueues.length < poolSize) {
+        	poolSize = workQueues.length; //small jobs don't get full parallelism. oh well.
+        }
         
         // create worker threads 
         ExecutorService pool = Executors.newFixedThreadPool(poolSize);
@@ -70,8 +90,12 @@ public class Main {
         Searcher.stop();
         pool.shutdown();
 
-        /**
-         * TODO: Printout Model.best;
-         */
+        if (model.getBest() == null) {
+    		System.out.println("\nNo solution found");
+    		return;
+    	} else {
+    		System.out.println(model.getBest().prettyPrint());
+    		return;
+    	}
     }
 }

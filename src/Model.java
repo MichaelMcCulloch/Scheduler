@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
 
@@ -10,38 +11,75 @@ public class Model {
 
     //This all needs to change. Maybe the parser should instantiate this? Maybe we don't use it at all
 
-    private static List<LabSlot> labSlots;
-    private static List<CourseSlot> courseSlots;
-    private static List<Course> allCourses;
-    public static int wMinFilled = 1, wPref = 1, wSecDiff = 1, wPair = 1;
-
+    private static volatile Model instance = null;
+    private boolean isDataSet = false;
     
-    private volatile static Schedule bestNode;
-    private static Lock bestLock = new ReentrantLock(true);
+    private String name;
+    private List<LabSlot> labSlots;
+    private List<CourseSlot> courseSlots;
+    private List<Course> allCourses;
 
-    public Model(List<Course> courses, List<Slot> slots) {
-        setData(courses, slots);
+    private Map<Course, Slot> unwanted;
+    private List<Triple<Course, Slot, Integer>> preferences;
+    private List<Pair<Course, Course>> together, incompatible;
+    
+    private volatile Schedule bestNode = null;
+    private volatile Integer bound = null;
+
+    private volatile Lock bestLock = new ReentrantLock(true);
+    private volatile Lock boundLock = new ReentrantLock(true);
+
+    public int  wMinFilled = 1, 
+                wPref = 1, 
+                wSecDiff = 1, 
+                wPair = 1;
+    protected Model(){
+        //no direct instantiation
     }
 
-    private static void setData(List<Course> courses, List<Slot> slots){
-        allCourses = courses;
-        
-        for (Slot s : slots) {
-            if (s instanceof CourseSlot){
-                courseSlots.add((CourseSlot) s);
-            } else {
-                labSlots.add((LabSlot) s);
-            }
+    public static Model getInstance(){
+        if (instance == null) {
+        	instance = new Model();
         }
-
+        return instance;
+    }
+    
+    public class AlreadyInstantiated extends Error{
+        public AlreadyInstantiated(){
+            super();
+        }
     }
 
+
+    /**
+     * Concurrency bug: Call this only from parser
+     */
+    public void setData(List<Course> allCourses, 
+    					List<LabSlot> labSlots,
+    					List<CourseSlot> courseSlots,
+    					Map<Course,Slot> unwanted, 
+    					List<Triple<Course,Slot,Integer>> preferences, 
+    					List<Pair<Course, Course>> together,
+    					List<Pair<Course, Course>> incompatible) throws AlreadyInstantiated {
+        if (isDataSet) throw new AlreadyInstantiated();
+        isDataSet = true;
+        
+        //set the courses
+        this.allCourses = allCourses;
+        this.labSlots = labSlots;
+        this.courseSlots = courseSlots;
+        this.unwanted = unwanted;
+        this.preferences = preferences;
+        this.together = together;
+        this.incompatible = incompatible;
+
+    }
 
     /**
      * Picks the best node based on its score only. not depths
      */
     
-    public static Consumer<Schedule> checkBest = new Consumer<Schedule>() {
+    public Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched){
             bestLock.lock();
             if (bestNode == null || sched.betterThan(bestNode)) {
@@ -51,14 +89,35 @@ public class Model {
         }
     };
 
-    public static List<Course> getCourses(){
+    public Integer checkBound(int newBound){
+        boundLock.lock();
+        Integer better = null;
+        if (bound == null || newBound < bound) {
+            bound = newBound;
+            better = null;
+        } else {
+            better = bound;
+        }
+
+        boundLock.unlock();
+        return better;
+    }
+
+    public List<Course> getCourses(){
         return allCourses;
     }
 
-    public static List<LabSlot> getLabSlots(){
+    public List<LabSlot> getLabSlots(){
         return labSlots;
     }
-    public static List<CourseSlot> getCourseSlots(){
+    public List<CourseSlot> getCourseSlots(){
         return courseSlots;
+    }
+    
+    public Schedule getBest() {
+    	bestLock.lock();
+    	Schedule b = bestNode;
+    	bestLock.unlock();
+    	return b;
     }
 }

@@ -3,24 +3,24 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * Searcher
- * Idea is that many of these can run simultaneously, and share a work queue. 
+ * Searcher 
  * While goal state not met:
-    *  Remove a PROB K from the queue,
-    *  ...some processing tbd
-    *  Remove a DIV D from K.divisons queue
-    *  ks = DIV(K)
-    *  ...some processing tbd
+    *  Remove a Schedule S from the queue,
+    *  ks = S.DIV
     *  put all ks into the work queue;
  */
 public class Searcher implements Runnable {
 
     private PriorityQueue<Schedule> workQueue;
     private static volatile boolean shutdownSignal = false;
-    private Schedule best;
+    private Schedule best; //complete schedules only
+    private Integer bound; //TODO: for incomplete schedules
+    private Model model;
+    
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
+        this.model = Model.getInstance();
     }
 
     public static void stop() {
@@ -51,9 +51,18 @@ public class Searcher implements Runnable {
         public void accept(Schedule sched) {
             if (best == null || sched.betterThan(best)) {
                 best = sched;
-                Model.checkBest.accept(sched);
+                model.checkBest.accept(sched);
             }
         }
     };
 
+    Consumer<Integer> adjustBound = new Consumer<Integer>() {
+        public void accept(Integer newBound) {
+            if (bound == null || newBound < bound){
+                bound = newBound;
+                Integer maybeEvenBetter = model.checkBound(newBound);
+                if (maybeEvenBetter != null) bound = maybeEvenBetter;
+            }
+        }
+    };
 }

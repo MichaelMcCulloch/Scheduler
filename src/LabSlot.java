@@ -18,5 +18,10 @@ public class LabSlot implements Slot {
     public boolean byDayTime(String day, String time) {
         return (this.day.equals(day )&& this.hour.equals(time));
     }
-
+    
+    @Override
+    public String toString() {
+    	// TODO Auto-generated method stub
+    	return "LAB@" + day + ":" + hour;
+    }
 }
