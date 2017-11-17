@@ -116,7 +116,9 @@ public class Parser {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
             Course c = findByName(cdtTuple[0]);
+            if (c == null) continue;
             Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
+            if (s == null) continue;
             nope.put(c, s);
         }
         return nope;
@@ -129,7 +131,9 @@ public class Parser {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
             Course c = findByName(cdtTuple[0]);
+            if (c == null) continue;
             Slot s = findByDayTime(c.isLecture(), cdtTuple[1], cdtTuple[2]);
+            if (s == null) continue;
             yes.put(c, s);
         }
         return yes;
@@ -158,6 +162,7 @@ public class Parser {
         for (Course var : allCourses) {
             if (var.byName(identifier)) return var;
         }
+        System.out.println("Warning: " + identifier + " not found in ");
         return null;
     }
 
@@ -166,13 +171,13 @@ public class Parser {
             for (CourseSlot var : courseSlots) {
                 if (var.byDayTime(day, hour)) return var;
             }
-            return null;
         } else {
             for (LabSlot var : labSlots) {
                 if (var.byDayTime(day, hour)) return var;
             }
-            return null;
         }
+        System.out.println("Warning: Slot" + day + " " + hour  + " not found");
+        return null;
     }
 
     public Schedule getInitialInstance(){
