@@ -56,21 +56,24 @@ public class Schedule implements Comparable<Schedule> {
     }
 
     private int eval(){
-        return 0;
+        return    evalMinFilled()   * Model.wMinFilled 
+                + evalPair()        * Model.wPair
+                + evalPref()        * Model.wPref
+                + evalSecDiff()      * Model.wSecDiff;
     }
     private int evalMinFilled(){
-
+        return 0;
     }
 
     private int evalPref(){
-
+        return 0;
     }
 
     private int evalPair(){
-
+        return 0;
     }
     private int evalSecDiff(){
-        
+        return 0;
     }
 
     /**
@@ -103,7 +106,21 @@ public class Schedule implements Comparable<Schedule> {
      * Decide if this problem instance meets the hard constraints
      */
     public boolean constr() {
-        return true;
+        return constrMax()
+                && constrIncompatible()
+                && constrUnwanted();
+    }
+
+    public boolean constrMax(){
+        return false;
+    }
+
+    public boolean constrIncompatible(){
+        return false;
+    }
+
+    public boolean constrUnwanted(){
+        return false;
     }
 
     /**

@@ -37,7 +37,9 @@ public class Main {
         File f;
         Parser p;
         try {
-            f = new File("test.txt");
+            Scanner user = new Scanner(System.in);
+            String filename = user.nextLine();
+            f = new File(filename);
             p = new Parser(f);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");

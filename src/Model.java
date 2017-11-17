@@ -13,6 +13,7 @@ public class Model {
     private static List<LabSlot> labSlots;
     private static List<CourseSlot> courseSlots;
     private static List<Course> allCourses;
+    public static int wMinFilled, wPref, wSecDiff, wPair;
 
     
     private volatile static Schedule bestNode;
@@ -54,7 +55,7 @@ public class Model {
         return allCourses;
     }
 
-    public static List<Slot> getSlots(){
-        return allSlots;
+    public static List<LabSlot> getLabSlots(){
+        return labSlots;
     }
 }
