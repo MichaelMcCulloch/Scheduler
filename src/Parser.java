@@ -22,8 +22,9 @@ public class Parser {
     public Parser(File f) throws FileNotFoundException {
     	Scanner fileScanner = new Scanner(f);
         List<String> lines = new ArrayList<>();
+        // Accumulate and remove spaces, set to uppercase
         while (fileScanner.hasNextLine()) {
-        	lines.add(fileScanner.nextLine().replaceAll("\\s+", ""));
+        	lines.add(fileScanner.nextLine().replaceAll("\\s+", "").toUpperCase(u);
         }
 
         Queue<String> pending = new LinkedList<String>(lines);
@@ -42,12 +43,12 @@ public class Parser {
     }
 
     private String parseName(Queue<String> q) {
-        while (!q.remove().equals("Name:"));
+        while (!q.remove().equals("NAME:"));
         return q.remove();
     }
     
     private List<CourseSlot> parseCourseSlots(Queue<String> q) {
-        while (!q.remove().equals("Courseslots:"));
+        while (!q.remove().equals("COURSESLOTS:"));
         List<CourseSlot> cSlots = new ArrayList<>();
         while (!q.peek().equals("")) {
             cSlots.add(new CourseSlot(q.remove()));
@@ -56,7 +57,7 @@ public class Parser {
     }
 
     private List<LabSlot> parseLabSlots(Queue<String> q) {
-        while (!q.remove().equals("Labslots:"));
+        while (!q.remove().equals("LABSLOTS:"));
         List<LabSlot> lSlots = new ArrayList<>();
         while (!q.peek().equals("")) {
             lSlots.add(new LabSlot(q.remove()));
@@ -65,7 +66,7 @@ public class Parser {
     }
     
     private List<Lecture> parseCourses(Queue<String> q) {
-        while (!q.remove().equals("Courses:"));
+        while (!q.remove().equals("COURSES:"));
         List<Lecture> courses = new ArrayList<>();
         while (!q.peek().equals("")) {
             courses.add(new Lecture(q.remove()));
@@ -74,7 +75,7 @@ public class Parser {
     }
 
     private List<Lab> parseLabs(Queue<String> q) {
-        while (!q.remove().equals("Labs:"));
+        while (!q.remove().equals("LABS:"));
         List<Lab> labs = new ArrayList<>();
         while (!q.peek().equals("")) {
             labs.add(new Lab(q.remove()));
@@ -83,7 +84,7 @@ public class Parser {
     }
 
     private List<Pair<Course,Course>> parseIncompatible(Queue<String> q){
-        while (!q.remove().equals("Notcompatible:"));
+        while (!q.remove().equals("NOTCOMPATIBLE:"));
         List<Pair<Course,Course>> nc = new ArrayList<>();
         while (!q.peek().equals("")) {
             String next = q.remove();
@@ -97,7 +98,7 @@ public class Parser {
     }
 
     private List<Pair<Course,Course>> parseTogether(Queue<String> q) {
-        while (!q.remove().equals("Pair:"));
+        while (!q.remove().equals("PAIR:"));
         List<Pair<Course,Course>> pairs = new ArrayList<>();
         while (!q.peek().equals("")) {
             String next = q.remove();
@@ -111,7 +112,7 @@ public class Parser {
     }
 
     private Map<Course,Slot> parseUnwanted(Queue<String> q) {
-        while (!q.remove().equals("Unwanted:"));
+        while (!q.remove().equals("UNWANTED:"));
         Map<Course,Slot> nope = new HashMap<>();
         while (!q.peek().equals("")) {
             String next = q.remove();
@@ -124,7 +125,7 @@ public class Parser {
     }
 
     private Map<Course,Slot> parsePartAssign(Queue<String> q) {
-        while (!q.remove().equals("Partialassignments:"));
+        while (!q.remove().equals("PARTIALASSIGNMENTS:"));
         Map<Course,Slot> yes = new HashMap<>();
         while (!q.isEmpty() && !q.peek().equals("")) {
             String next = q.remove();
@@ -136,8 +137,11 @@ public class Parser {
         return yes;
     }
 
+    /**
+     * Tuple is of form Course, Slot, Importance
+     */
     private List<Triple<Course, Slot, Integer>> parsePreferences(Queue<String> q) {
-        while (!q.remove().equals("Preferences:"));
+        while (!q.remove().equals("PREFERENCES:"));
         List<Triple<Course, Slot, Integer>> prefs = new ArrayList<>();
         while (!q.peek().equals("")) {
             String next = q.remove();
@@ -150,6 +154,9 @@ public class Parser {
         return prefs;
     }
 
+    /**
+     * Get a pair of course & slot. 
+     */
     private Pair<Course,Slot> getCourseSlotPair(String courseID, String slotDay, String slotHour){
         Course c = findByName(courseID);
         if (c == null) return null;
@@ -169,17 +176,15 @@ public class Parser {
         return null;
     }
 
+    /**
+     * Returns a lab slot if the course is a lab, or a lecture slot otherwise
+     */
     private Slot findByDayTime(boolean isLecture, String day, String hour){
-        if (isLecture) {
-            for (CourseSlot var : courseSlots) {
-                if (var.byDayTime(day, hour)) return var;
-            }
-        } else {
-            for (LabSlot var : labSlots) {
-                if (var.byDayTime(day, hour)) return var;
-            }
+        List<Slot> searchThrough = new ArrayList<>((isLecture) ? courseSlots : labSlots);
+        for (Slot var : searchThrough) {
+            if (var.byDayTime(day, hour)) return var;
         }
-        System.out.println("Warning: Slot" + day + " " + hour  + " not found");
+        System.out.println("Warning: " + ((isLecture) ? "Course" : "Lab") + "Slot" + day + " " + hour  + " not found");
         return null;
     }
 
