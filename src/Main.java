@@ -18,18 +18,18 @@ public class Main {
         while (!startingNodes.isEmpty() && startingNodes.size() < poolSize){
         	Schedule next = startingNodes.remove();
         	List<Schedule> offspring = next.div(Model.getInstance().checkBest);
-        	if (offspring.isEmpty()) continue; //May not be done, could be no solutions available from that node
+        	if (offspring.isEmpty()) continue;
             startingNodes.addAll(offspring);
         }
 
         if (startingNodes.isEmpty()) return null;
-        if (startingNodes.size() < poolSize) poolSize = startingNodes.size();
         
         List<Schedule>[] workQueues = new List[poolSize];
-        for (int i = 0; i < startingNodes.size(); i++){
+        int items = startingNodes.size();
+        for (int i = 0; i < items; i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
-            workQueues[i * poolSize].add(startingNodes.remove());
+            workQueues[i % poolSize].add(startingNodes.remove());
         }
         
         return workQueues;
@@ -80,13 +80,18 @@ public class Main {
             pool.execute(searchers[i]);
         }
 
+        /*
         //TODO: replace this with termination condition
         try {
             Thread.sleep(5000);
         } catch (Exception e) {
             //TODO: handle exception
         }
-
+         */
+        
+        Scanner keyboard = new Scanner(System.in);
+        while ( !keyboard.next().equals("quit") );
+        
         Searcher.stop();
         pool.shutdown();
 

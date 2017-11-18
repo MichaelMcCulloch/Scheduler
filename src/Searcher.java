@@ -16,7 +16,7 @@ public class Searcher implements Runnable {
     private Schedule best; //complete schedules only
     private Integer bound; //TODO: for incomplete schedules
     private Model model;
-    
+    private int count = 0;
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
@@ -32,11 +32,14 @@ public class Searcher implements Runnable {
      */
     @Override
     public void run() {
+    	
+    	Schedule last = null;
 
-        while (!shutdownSignal) {
+        while (!workQueue.isEmpty() && !shutdownSignal) {
             try {
                 Schedule next = workQueue.remove();
                 List<Schedule> children = next.div(checkBest);
+                if (children.isEmpty()) continue;
                 workQueue.addAll(children);
             } catch (Exception e) {
                 //TODO: handle exception

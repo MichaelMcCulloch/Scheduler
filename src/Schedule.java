@@ -33,7 +33,7 @@ public class Schedule implements Comparable<Schedule> {
         //add the new node
         if (newAssignment != null) insertElem(newAssignment.fst(), newAssignment.snd());
         this.parent = parent;
-        this.depth  = (parent == null) ? 0 : parent.depth;
+        this.depth  = (parent == null) ? 0 : parent.depth + 1;
         this.score  = eval();
     }
 
@@ -115,6 +115,7 @@ public class Schedule implements Comparable<Schedule> {
         } else {
             //If you get here, you have just called div on a solved node. Why. 
             System.out.println("Error, This node is already solved");
+            System.out.println(this);
             
         }
 
@@ -129,10 +130,10 @@ public class Schedule implements Comparable<Schedule> {
         
         for (Schedule schedule: n) {
 
-            boolean constr = schedule.constr();
+            boolean constr = true; //schedule.constr();
             boolean solved = false;
             if (constr) {
-                solved = schedule.solved();
+                solved = false; //schedule.solved();
             }
 
             if (constr && !solved){
