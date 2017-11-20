@@ -13,7 +13,11 @@ public class Model {
     private static List<LabSlot> labSlots;
     private static List<CourseSlot> courseSlots;
     private static List<Course> allCourses;
+    private static List<Triple<Course, Slot, Integer>> preferences;
+    private static List<Pair<Course, Course>> together;
+    
     public static int wMinFilled, wPref, wSecDiff, wPair;
+    public static int penCourseMin, penLabMin, penSecDiff, penPair;
 
     
     private volatile static Schedule bestNode;
@@ -57,5 +61,13 @@ public class Model {
 
     public static List<LabSlot> getLabSlots(){
         return labSlots;
+    }
+    
+    public static List<Triple<Course, Slot, Integer>> getPreferences(){
+    	return preferences;
+    }
+    
+    public static List<Pair<Course, Course>> getTogether() {
+    	return together;
     }
 }

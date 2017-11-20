@@ -19,4 +19,9 @@ public class LabSlot implements Slot {
         return (this.day.equals(day )&& this.hour.equals(time));
     }
 
+    @Override
+    public int getMax() { return this.labMax; }
+    
+    @Override
+    public int getMin() { return this.labMin; }
 }

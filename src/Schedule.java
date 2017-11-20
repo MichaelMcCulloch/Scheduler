@@ -59,20 +59,46 @@ public class Schedule implements Comparable<Schedule> {
         return    evalMinFilled()   * Model.wMinFilled 
                 + evalPair()        * Model.wPair
                 + evalPref()        * Model.wPref
-                + evalSecDiff()      * Model.wSecDiff;
+                + evalSecDiff()     * Model.wSecDiff;
     }
+    
     private int evalMinFilled(){
-        return 0;
+    	int sum = 0;
+    	for (Map.Entry<Slot, Integer> entry : counters.entrySet()) {
+    		int delta = entry.getKey().getMin() - entry.getValue();
+    		if (delta > 0) {
+    			if (entry.getKey() instanceof CourseSlot) {
+    				sum += delta * Model.penCourseMin;
+    			} else {
+    				sum += delta * Model.penLabMin;
+    			}
+    		} 
+    	}
+        return sum;
     }
 
     private int evalPref(){
-        return 0;
+        int sum = 0;
+        for (Triple<Course, Slot, Integer> pref : Model.getPreferences()) {
+        	if (!assignments.get(pref.fst()).equals(pref.snd())) {
+        		sum += pref.trd();
+        	}
+        }
+        return sum;
     }
 
     private int evalPair(){
-        return 0;
+    	int sum = 0;
+    	for (Pair<Course, Course> pair : Model.getTogether()) {
+    		if (!assignments.get(pair.fst()).equals(assignments.get(pair.snd()))) {
+    			sum += Model.penPair;
+    		}
+    	}
+        return sum;
     }
+    
     private int evalSecDiff(){
+        //Need a good way to compare the assignment of a course section to other sections of the same course. Going to think about this for a bit.
         return 0;
     }
 

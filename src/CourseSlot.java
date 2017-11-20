@@ -19,4 +19,9 @@ public class CourseSlot implements Slot {
         return (this.day.equals(day )&& this.hour.equals(time));
     }
 
+    @Override
+    public int getMax() { return this.courseMax; }
+    
+    @Override
+    public int getMin() { return this.courseMin; }
 }
