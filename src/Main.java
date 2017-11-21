@@ -23,7 +23,7 @@ public class Main {
         for (int i = 0; i < startingNodes.size(); i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
-            workQueues[i * poolSize].add(startingNodes.remove());
+            workQueues[i % poolSize].add(startingNodes.remove());
         }
         return workQueues;
     }
@@ -37,9 +37,12 @@ public class Main {
         File f;
         Parser p;
         try {
+            /*
             Scanner user = new Scanner(System.in);
             String filename = user.nextLine();
-            f = new File(filename);
+            user.close();
+            */
+            f = new File("test.txt");
             p = new Parser(f);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
