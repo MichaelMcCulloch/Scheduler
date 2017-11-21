@@ -25,4 +25,9 @@ public class CourseSlot implements Slot {
     	return "LEC@" + day + ":" + hour;
     }
 
+    @Override
+    public int getMax() { return this.courseMax; }
+    
+    @Override
+    public int getMin() { return this.courseMin; }
 }

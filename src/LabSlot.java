@@ -24,4 +24,10 @@ public class LabSlot implements Slot {
     	// TODO Auto-generated method stub
     	return "LAB@" + day + ":" + hour;
     }
+
+    @Override
+    public int getMax() { return this.labMax; }
+    
+    @Override
+    public int getMin() { return this.labMin; }
 }

@@ -1,6 +1,5 @@
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Searcher 
@@ -16,7 +15,6 @@ public class Searcher implements Runnable {
     private Schedule best; //complete schedules only
     private Integer bound; //TODO: for incomplete schedules
     private Model model;
-    private int count = 0;
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
@@ -33,7 +31,6 @@ public class Searcher implements Runnable {
     @Override
     public void run() {
     	
-    	Schedule last = null;
 
         while (!workQueue.isEmpty() && !shutdownSignal) {
             try {

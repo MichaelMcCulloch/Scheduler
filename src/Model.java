@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
 
@@ -26,13 +25,32 @@ public class Model {
     private volatile Schedule bestNode = null;
     private volatile Integer bound = null;
 
-    private volatile Lock bestLock = new ReentrantLock(true);
     private volatile Lock boundLock = new ReentrantLock(true);
 
-    public int  wMinFilled = 1, 
+    public enum Weight{
+        MinFilled,
+        Preference,
+        SectionDifference,
+        Paired
+    }
+    
+    public enum Penalty {
+        CourseMin,
+        LabMin,
+        SectionDifference,
+        Pair
+    }
+
+    private int wMinFilled = 1, 
                 wPref = 1, 
                 wSecDiff = 1, 
                 wPair = 1;
+
+    private int penCourseMin = 1,
+                penLabMin = 1, 
+                penSecDiff = 1,
+                penPair = 1;
+                
     protected Model(){
         //no direct instantiation
     }
@@ -72,7 +90,6 @@ public class Model {
         this.preferences = preferences;
         this.together = together;
         this.incompatible = incompatible;
-
     }
 
     /**
@@ -81,11 +98,7 @@ public class Model {
     
     public Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched){
-            bestLock.lock();
-            if (bestNode == null || sched.betterThan(bestNode)) {
-                bestNode = sched;
-            }
-            bestLock.unlock();
+            checkBest(sched);
         }
     };
 
@@ -114,10 +127,51 @@ public class Model {
         return courseSlots;
     }
     
-    public Schedule getBest() {
-    	bestLock.lock();
+    public List<Triple<Course, Slot, Integer>> getPreferences(){
+        return preferences;
+    }
+    
+    public List<Pair<Course, Course>> getTogether(){
+        return together;
+    }
+
+    public List<Pair<Course, Course>> getIncompatible(){
+        return incompatible;
+    }
+
+    public Map<Course,Slot> getUnwanted(){
+        return unwanted;
+    }
+
+    public int getWeights(Weight w){
+        switch (w) {
+            case MinFilled: return wMinFilled;
+            case Preference: return wPref;
+            case SectionDifference: return wSecDiff;
+            case Paired: return wPair;
+            default: return 0;
+        }
+    }
+
+    public int getPenalies(Penalty p){
+        switch (p) {
+            case CourseMin: return penCourseMin;
+            case LabMin: return penLabMin;
+            case SectionDifference: return penSecDiff;
+            case Pair: return penPair;
+            default: return 0;
+        }
+    }
+
+    private synchronized void checkBest(Schedule sched){
+        if (bestNode == null || sched.betterThan(bestNode)) {
+            bestNode = sched;
+        }
+    }
+    public synchronized Schedule getBest() {
     	Schedule b = bestNode;
-    	bestLock.unlock();
     	return b;
     }
+
+    
 }

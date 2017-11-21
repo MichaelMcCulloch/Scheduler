@@ -1,7 +1,5 @@
 import java.util.*;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 
 /**
  * Parser
@@ -26,7 +24,7 @@ public class Parser {
         while (fileScanner.hasNextLine()) {
         	lines.add(fileScanner.nextLine().replaceAll("\\s+", "").toUpperCase());
         }
-
+        fileScanner.close();
         Queue<String> pending = new LinkedList<String>(lines);
         this.name = parseName(pending);
         this.courseSlots = parseCourseSlots(pending);

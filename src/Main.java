@@ -39,6 +39,7 @@ public class Main {
         try {
             Scanner user = new Scanner(System.in);
             String filename = user.nextLine();
+            user.close();
             f = new File(filename);
             p = new Parser(f);
         } catch (FileNotFoundException e) {

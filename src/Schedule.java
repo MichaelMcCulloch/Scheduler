@@ -1,43 +1,40 @@
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 /**
  * Schedule
  */
 public class Schedule implements Comparable<Schedule> {
 
-    private Map<Course,Slot> assignments;
+    private Map<Course, Slot> assignments;
     private Schedule parent;
     private int depth, score;
     private Map<Slot, Integer> counters;
 
-
-    public Schedule(Schedule parent, final Map<Course,Slot> assignments){
+    public Schedule(Schedule parent, final Map<Course, Slot> assignments) {
         this(parent, assignments, null);
     }
 
-    public Schedule(Schedule parent, final Map<Course,Slot> assignments, Pair<Course,Slot> newAssignment){
+    public Schedule(Schedule parent, final Map<Course, Slot> assignments, Pair<Course, Slot> newAssignment) {
         //fresh copy of assignments
         this.assignments = new HashMap<>();
         this.counters = new HashMap<>();
-        for (Entry<Course,Slot> var : assignments.entrySet()) {
+        for (Entry<Course, Slot> var : assignments.entrySet()) {
             Slot s = var.getValue();
             Course c = var.getKey();
             insertElem(c, s);
         }
         //add the new node
-        if (newAssignment != null) insertElem(newAssignment.fst(), newAssignment.snd());
+        if (newAssignment != null)
+            insertElem(newAssignment.fst(), newAssignment.snd());
         this.parent = parent;
-        this.depth  = (parent == null) ? 0 : parent.depth + 1;
-        this.score  = eval();
+        this.depth = (parent == null) ? 0 : parent.depth + 1;
+        this.score = eval();
     }
 
-    private boolean insertElem(Course c, Slot s){
+    private boolean insertElem(Course c, Slot s) {
 
         Integer count = counters.get(s);
         //count occurances of an item.
@@ -46,40 +43,69 @@ public class Schedule implements Comparable<Schedule> {
         return true; //unles a constraint is violated
     }
 
-    public Map<Course, Slot> getAssigned(){
+    public Map<Course, Slot> getAssigned() {
         return assignments;
     }
 
     //Serves purpose of fLEAF;
-    @Override    
+    @Override
     public int compareTo(Schedule other) {
-        if (this.depth > other.depth) return -1;
-        else if (this.depth < other.depth) return 1;
-        else return (betterThan(other)) ? -1 : 1;
+        if (this.depth > other.depth)
+            return -1;
+        else if (this.depth < other.depth)
+            return 1;
+        else
+            return (betterThan(other)) ? -1 : 1;
     }
 
-    public boolean betterThan(Schedule other){
+    public boolean betterThan(Schedule other) {
         return (this.score > other.score);
     }
 
-    private int eval(){
-        return    evalMinFilled()   * Model.getInstance().wMinFilled 
-                + evalPair()        * Model.getInstance().wPair
-                + evalPref()        * Model.getInstance().wPref
-                + evalSecDiff()     * Model.getInstance().wSecDiff;
-    }
-    private int evalMinFilled(){
-        return 0;
+    private int eval() {
+        return  evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
+                + evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
+                + evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
+                + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference);
     }
 
-    private int evalPref(){
-        return 0;
+    private int evalMinFilled() {
+        int sum = 0;
+        for (Map.Entry<Slot, Integer> entry : counters.entrySet()) {
+            int delta = entry.getKey().getMin() - entry.getValue();
+            if (delta > 0) {
+                if (entry.getKey() instanceof CourseSlot) {
+                    sum += delta * Model.getInstance().getPenalies(Model.Penalty.CourseMin);
+                } else {
+                    sum += delta * Model.getInstance().getPenalies(Model.Penalty.LabMin);
+                }
+            }
+        }
+        return sum;
     }
 
-    private int evalPair(){
-        return 0;
+    private int evalPref() {
+        int sum = 0;
+        for (Triple<Course, Slot, Integer> pref : Model.getInstance().getPreferences()) {
+            if (!assignments.get(pref.fst()).equals(pref.snd())) {
+                sum += pref.trd();
+            }
+        }
+        return sum;
     }
-    private int evalSecDiff(){
+
+    private int evalPair() {
+        int sum = 0;
+        for (Pair<Course, Course> pair : Model.getInstance().getTogether()) {
+            if (!assignments.get(pair.fst()).equals(assignments.get(pair.snd()))) {
+                sum += Model.getInstance().getPenalies(Model.Penalty.Pair);
+            }
+        }
+        return sum;
+    }
+
+    private int evalSecDiff() {
+        //Need a good way to compare the assignment of a course section to other sections of the same course. Going to think about this for a bit.
         return 0;
     }
 
@@ -96,29 +122,28 @@ public class Schedule implements Comparable<Schedule> {
         for (Course c : Model.getInstance().getCourses()) {
             Slot s = assignments.get(c);
             if (s == null) {
-            	assign = c;
-            	break;
+                assign = c;
+                break;
             }
         }
         //for each slot, make children in which this course is in that slot
         if (assign != null) {
             List<Slot> slots;
-            if (assign instanceof Lecture){
+            if (assign instanceof Lecture) {
                 slots = new ArrayList<>(Model.getInstance().getCourseSlots());
             } else {
                 slots = new ArrayList<>(Model.getInstance().getLabSlots());
             }
             for (Slot s : slots) {
-                Schedule next = new Schedule(this, assignments, new Pair<Course,Slot>(assign, s));
+                Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
                 n.add(next);
             }
         } else {
             //If you get here, you have just called div on a solved node. Why. 
             System.out.println("Error, This node is already solved");
             System.out.println(this);
-            
-        }
 
+        }
 
         /**
          * Filter out nodes which violate the hard constraints and which are solved, 
@@ -127,8 +152,8 @@ public class Schedule implements Comparable<Schedule> {
          */
 
         List<Schedule> unsolvedNodes = new ArrayList<>();
-        
-        for (Schedule schedule: n) {
+
+        for (Schedule schedule : n) {
 
             boolean constr = true; //schedule.constr();
             boolean solved = false;
@@ -136,7 +161,7 @@ public class Schedule implements Comparable<Schedule> {
                 solved = false; //schedule.solved();
             }
 
-            if (constr && !solved){
+            if (constr && !solved) {
                 unsolvedNodes.add(schedule);
             } else if (solved) {
                 completion.accept(schedule);
@@ -149,20 +174,18 @@ public class Schedule implements Comparable<Schedule> {
      * Decide if this problem instance meets the hard constraints
      */
     public boolean constr() {
-        return constrMax()
-                && constrIncompatible()
-                && constrUnwanted();
+        return constrMax() && constrIncompatible() && constrUnwanted();
     }
 
-    public boolean constrMax(){
+    public boolean constrMax() {
         return false;
     }
 
-    public boolean constrIncompatible(){
+    public boolean constrIncompatible() {
         return false;
     }
 
-    public boolean constrUnwanted(){
+    public boolean constrUnwanted() {
         return false;
     }
 
@@ -175,18 +198,17 @@ public class Schedule implements Comparable<Schedule> {
     public boolean solved() {
         return false;
     }
-    
+
     public String toString() {
-    	return assignments.toString();
+        return assignments.toString();
     }
-  
-    
+
     /**
      * Print in row, in alphabetical order 
      * @return
      */
     public String prettyPrint() {
-		return "";
-	}
-    
+        return "";
+    }
+
 }
