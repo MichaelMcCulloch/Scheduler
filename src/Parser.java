@@ -76,7 +76,14 @@ public class Parser {
         while (!q.remove().equals("COURSES:"));
         List<Lecture> courses = new ArrayList<>();
         while (!q.peek().equals("")) {
-            courses.add(new Lecture(q.remove()));
+        	Lecture next = new Lecture(q.remove());
+        	for (Lecture alreadyParsed : courses) {		//for all courses already parsed
+        		if (alreadyParsed.isSibling(next)) {	//if siblings
+        			alreadyParsed.addSibling(next);		//add reciprocal references to sibling list
+        			next.addSibling(alreadyParsed);
+        		}
+        	}
+            courses.add(next);
         }
         return courses;
     }
