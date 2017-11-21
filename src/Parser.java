@@ -37,15 +37,16 @@ public class Parser {
         this.together = parseTogether(pending);
         this.partAssign = parsePartAssign(pending);
 
-        initialInstance = new Schedule(null, partAssign);
-        Model m = Model.getInstance();
+        
         
         List<Course> allCourses = new ArrayList<>();
         allCourses.addAll(courseList);
         allCourses.addAll(labList);
-        
+
+        Model m = Model.getInstance();
         m.setData(allCourses, labSlots, courseSlots, unwanted, preferences, together, incompatible);
         
+        initialInstance = new Schedule(null, partAssign);
     }
 
     private String parseName(Queue<String> q) {

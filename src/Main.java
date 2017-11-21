@@ -38,6 +38,7 @@ public class Main {
         Parser p;
         try {
             Scanner user = new Scanner(System.in);
+            System.out.println("Point me to the input file:");
             String filename = user.nextLine();
             user.close();
             f = new File(filename);
