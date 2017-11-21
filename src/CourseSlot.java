@@ -30,4 +30,8 @@ public class CourseSlot implements Slot {
     
     @Override
     public int getMin() { return this.courseMin; }
+
+    public String getHour() {
+        return hour;
+    }
 }
