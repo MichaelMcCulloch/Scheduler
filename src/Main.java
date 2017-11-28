@@ -41,7 +41,7 @@ public class Main {
             System.out.println("Point me to the input file:");
             String filename = user.nextLine();
             user.close();
-            f = new File(filename);
+            f = new File("test.txt");
             p = new Parser(f);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");

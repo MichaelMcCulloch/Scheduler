@@ -231,13 +231,15 @@ public class Schedule implements Comparable<Schedule> {
         if (c instanceof Lecture) {
             for (Course conflict : c.getMutex()) {
                 Slot conflictTimeSlot = assignments.get(conflict);
-                if (conflict instanceof Lecture) {
-                    if (newAssignment.snd() == conflictTimeSlot) {
-                        return false;
-                    }
+                if (conflictTimeSlot != null) {
+	                if (conflict instanceof Lecture) {
+	                    if (newAssignment.snd() == conflictTimeSlot) {
+	                        return false;
+	                    }
+	                }
+	                if (conflict instanceof Lab && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
+	                    return false;
                 }
-                if (conflict instanceof Lab && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
-                    return false;
                 }
             }
 
