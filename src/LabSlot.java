@@ -30,4 +30,10 @@ public class LabSlot implements Slot {
     
     @Override
     public int getMin() { return this.labMin; }
+
+    @Override
+    public String getHour() { return this.hour; }
+
+    @Override
+    public String getDay() { return this.day; }
 }

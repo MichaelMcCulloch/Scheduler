@@ -1,8 +1,12 @@
+import java.util.ArrayList
+import java.util.List;
+
 /**
  * Lab implements Course
  */
 public class Lab implements Course {
 
+    private List<Course> mutex = new ArrayList<>();
     private String name;
     public Lab(String id){
         name = id;
@@ -16,4 +20,13 @@ public class Lab implements Course {
     	// TODO Auto-generated method stub
     	return name;
     }
+    @Override
+    public List<Course> getMutex() {
+        return this.mutex;
+    }
+    @Override
+    public void addMutex(Course c) {
+        mutex.add(c);
+    }
+
 }

@@ -6,7 +6,9 @@ import java.util.List;
  */
 public class Lecture implements Course {
 	private List<Lecture> siblings = new ArrayList<>();
+    private List<Course> mutex = new ArrayList<>();
 	private String name;
+
     public Lecture(String id){
         name = id;
     }
@@ -19,6 +21,16 @@ public class Lecture implements Course {
     public String toString() {
     	// TODO Auto-generated method stub
     	return name;
+    }
+
+    @Override
+    public List<Course> getMutex(){
+        return this.mutex;
+    }
+
+    @Override
+    public void addMutex(Course c){
+        mutex.add(c);
     }
     
     public List<Lecture> getSiblings() {

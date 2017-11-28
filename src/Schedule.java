@@ -187,16 +187,15 @@ public class Schedule implements Comparable<Schedule> {
     /**
      * Decide if this problem instance meets the hard constraints by checking the newly assigned slot
      */
-    public boolean constr(Pair<Course,Slot> newAssignment) {    // QUESTION : Do we need partAssign in the constr() function or
-        return constrMax(newAssignment)                         // are we going to put them in the hash table at the beginning??????????
-                && constrCourseLabConflict(newAssignment)
-                && constrIncompatible(newAssignment)
+    public boolean constr(Pair<Course,Slot> newAssignment) {
+        return constrMax(newAssignment)
+                && constrCourseConflict(newAssignment)
                 && constrUnwanted(newAssignment)
                 && constrEveningSlot(newAssignment)
-                && constr500Level(newAssignment)
-                && constrTue11(newAssignment)
-                && constrSpecialCourses(newAssignment);
+                && constrTue11(newAssignment);
     }
+
+    //TODO: ADDING THE LIST OF ALL 500 COURSES TO THE MUTEX LIST FOR EACH 500 LEVEL COURSE.
 
     /**
     * Checks the hard constraints of courseMax and labMax
@@ -222,91 +221,120 @@ public class Schedule implements Comparable<Schedule> {
     /**
     * Checks the hard constraints of having different time slots for a course and its corresponding labs
     */
-    public boolean constrCourseLabConflict(Pair<Course,Slot> newAssignment){
+    public boolean constrCourseConflict(Pair<Course,Slot> newAssignment){
 
         Course c = newAssignment.fst();
 
         if (c instanceof Lecture) {
-            String[] nameParts = c.name.split(" ");
-            // Searching the hash table to find all Lab Slots that have the same number as nameParts[1]
-            // If no Lab Slots is found --> return true
-            // otherwise:
-            // for (all found lab slots){
-            //  if (labSlot == newAssignment.snd()){
-            //      return false;
-            //  } else if (labSlot is on Fri && newAssignment.snd() is on Mon && (labSlotHour + 1) == newAssignment.snd()){
-            //      return false;
-            //  } else if (labSlot is on Tue && newAssignment.snd() is on Tue && (labSlotHour - 0.5) == newAssignment.snd()){
-            //      return false;
-            //  } else if (labSlot is on Tue && newAssignment.snd() is on Tue && (labSlotHour + 0.5) == newAssignment.snd()){
-            //      return false;
-            //  }
-            //}
+            for (Course conflict : c.getMutex()) {
+                Slot conflictTimeSlot = assignments.get(conflict);
+                if (conflict instanceof Lecture) {
+                    if (newAssignment.snd() == conflictTimeSlot) {
+                        return false;
+                        break;
+                    } else {
+                        return true;
+                    }
+                }
+                if (conflict instanceof Lab && hasLectureOverlap(newAssignment.snd(), conflictTimeSlot)) {
+                    return false;
+                    break;
+                } else {
+                    return true;
+                } 
+            }
+            
         } else if (c instanceof Lab) {
-            String[] labNameParts = c.name.split(" ");
-
-            if (labNameParts.length == 6) {
-                // Searching the hash table to find all Course Slots that have same number as labNameParts[1] && have same LEC as labNameParts[3]
-                // If no Course Slots is found --> return true
-                // otherwise:
-                // for (all found course slots){
-                //  if (courseSlot == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Mon && newAssignment.snd() is on Fri && (courseSlotHour - 1) == newAssignment.snd()){
-                //      return false;
-                //  } esle if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour + 1) == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour + 0.5) == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour - 0.5) == newAssignment.snd()){
-                //      return false;
-                //  }
-                // }
-            } else {
-                // Searching the hash table to find all Course Slots that have same number as labNameParts[1]
-                // If no Course Slots is found --> return true
-                // otherwise:
-                // for (all found course slots){
-                //  if (courseSlot == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Mon && newAssignment.snd() is on Fri && (courseSlotHour - 1) == newAssignment.snd()){
-                //      return false;
-                //  } esle if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour + 1) == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour + 0.5) == newAssignment.snd()){
-                //      return false;
-                //  } else if (courseSlot is on Tue && newAssignment.snd() is on Tue && (courseSlotHour - 0.5) == newAssignment.snd()){
-                //      return false;
-                //  }
-                // }
+            for (Course conflict : c.getMutex()) {
+                Slot conflictTimeSlot = assignments.get(conflict);
+                if (conflict instanceof Lab) {
+                    if (newAssignment.snd() == conflictTimeSlot) {
+                        return false;
+                        break;
+                    } else {
+                        return true;
+                    }
+                } 
+                if (conflict instanceof Lecture && hasLabOverlap(newAssignment.snd(), conflictTimeSlot)) {
+                    return false;
+                    break;
+                } else {
+                    return true;
+                }
+                
             }
         }
     }
 
     /**
-    * Checks the hard constraints for incompatible courses
+    * Checks if a lecture time has an overlap with a lab time
     */
-    public boolean constrIncompatible(Pair<Course,Slot> newAssignment){
+    public boolean hasLectureOverlap(Slot lectureTime, Slot labTime) {
+        String lectureDay = lectureTime.getDay();
+        String lectureHourString = lectureTime.getHour();
+        String labDay = labTime.getDay();
+        String labHourString = labTime.getHour();
 
-        Course c = newAssignment.fst();
+        String[] lecHr = lectureHourString.split(":");
+        String[] labHr = labHourString.split(":");
 
-        for (Course incompatibleCourse : ((Model.getInstance().getIncompatible()).fst() || (Model.getInstance().getIncompatible()).snd())) {
-            
-            if (c == incompatibleCourse && exists(assignments.get(incompatibleCourse))) { //checking if c is in incompatible list and if the other
-                                                                                          //course in incompatible pair has been assigned to a slot yet
-                Slot s1 = assignments.get(c);
-                Slot s2 = assignments.get(incompatibleCourse);
-
-                if (s1 == s2) {
-                    return false;
-                    break;
-                }
-                return true;
-            }
+        float labHour = Float.parseFloat(labHr[0]);
+        float lectureHour;
+        if (lecHr[1] == "00") {
+            lectureHour = Float.parseFloat(lecHr[0]);
+        } else {
+            lectureHour = Float.parseFloat(lecHr[0]) + 0.5;
         }
 
-        return true;
+        if (lectureTime.byDayTime(labDay, labHour)) {
+            return true;
+        } else if (labDay == "Fri" && lectureDay == "Mon" && lectureHour == (labHour + 1)) {
+            return true;
+        } else if (labDay == "Tue" && lectureDay == "Tue" && lectureHour == (labHour - 0.5)) {
+            return true;
+        } else if (labDay == "Tue" && lectureDay == "Tue" && lectureHour == (labHour + 0.5)) {
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    /**
+    * Checks if a lab time has an overlap with a lecture time
+    */
+    public boolean hasLabOverlap(Slot labTime, Slot lectureTime) {
+        String lectureDay = lectureTime.getDay();
+        String lectureHourString = lectureTime.getHour();
+        String labDay = labTime.getDay();
+        String labHourString = labTime.getHour();
+
+        String[] lecHr = lectureHourString.split(":");
+        String[] labHr = labHourString.split(":");
+
+        float labHour = Float.parseFloat(labHr[0]);
+        float lectureHour;
+        if (lecHr[1] == "00") {
+            lectureHour = Float.parseFloat(lecHr[0]);
+        } else {
+            lectureHour = Float.parseFloat(lecHr[0]) + 0.5;
+        }
+
+        if (labTime.byDayTime(lectureDay, lectureHour)) {
+            return true;
+        } else if (labDay == "Fri" && lectureDay == "Mon" && labHour == (lectureHour - 1)) {
+            return true;
+        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour + 1)) {
+            return true;
+        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour + 0.5)) {
+            return true;
+        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour - 0.5)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 
     /**
     * Checks the hard constraints for unwanted time slots for specific courses
@@ -336,8 +364,8 @@ public class Schedule implements Comparable<Schedule> {
         Course c = newAssignment.fst();
 
         if (c instanceof Lecture) {
-            String[] nameParts = c.name.split(" ");
-            if (nameParts[3] == "9" || nameParts[3] == "09") {
+            char sectionStartingNum = charAt(11);
+            if (sectionStartingNum == '9') {
                 Slot s = newAssignment.snd();
                 if (s.getHour() != "18:00" || s.getHour() != "19:00" || s.getHour() != "20:00" || s.getHour() != "18:30") {
                     return false;
@@ -350,27 +378,6 @@ public class Schedule implements Comparable<Schedule> {
         }
     }
 
-    /**
-    * Checks the hard constraints for 500 level courses to be scheduled at different times
-    */
-    public boolean constr500Level(Pair<Course,Slot> newAssignment){
-
-        Course c = newAssignment.fst();
-
-        if (c instanceof Lecture) {
-            String[] nameParts = c.name.split(" ");
-            if (nameParts[1].charAt(0)  == "5") {
-                Slot s = newAssignment.snd();
-                // Searching in the hash table to fine the slots of all 500 courses that are assigned to a time slot
-                // for (all found 500 courses)
-                // their time slot != s
-                // other wise return false
-                
-            } 
-        } else {
-            return true;
-        }
-    }
 
     /**
     * Checks the hard constraints for no courses to be scheduled at Tue 11-12:30
@@ -391,12 +398,6 @@ public class Schedule implements Comparable<Schedule> {
         }
     }
 
-    /**
-    * Checks the hard constraints for special courses that cannot be scheduled at the same time (CPSC 313 and CPSC 813)
-    */
-    public boolean constrSpecialCourses(Pair<Course,Slot> newAssignment){      // Maybe we should add these courses to the incompatible!!!
-        return false;
-    }
 
     /**
      * If the instance is not solved/unsolvable, return false;

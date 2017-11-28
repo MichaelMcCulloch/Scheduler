@@ -7,4 +7,6 @@ public interface Slot {
     public String toString();
     public int getMax();
     public int getMin();
+    public String getHour();
+    public String getDay();
 }
