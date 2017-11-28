@@ -6,11 +6,14 @@ import java.util.List;
  */
 public interface Course {
     
+	
     public boolean byName(String name);
     
     public String toString();
-    
+
     public List<Course> getMutex();
-    
+
     public void addMutex(Course c);
+
+    public int getSectNum();
 }

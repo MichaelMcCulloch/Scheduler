@@ -47,7 +47,12 @@ public class Parser {
         Model m = Model.getInstance();
         m.setData(allCourses, labSlots, courseSlots, unwanted, preferences, together, incompatible);
         
-        initialInstance = new Schedule(null, partAssign);
+        try {
+            initialInstance = new Schedule(null, partAssign);
+        } catch (Exception e) {
+            System.exit(1);
+        }
+        
     }
 
     private String parseName(Queue<String> q) {
@@ -152,7 +157,9 @@ public class Parser {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
             Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
-            if (cs == null) continue;
+            if (cs == null) { //Bad assignment
+                System.exit(1);   
+            }
             yes.put(cs.fst(), cs.snd());
         }
         return yes;
@@ -179,51 +186,50 @@ public class Parser {
      * If 313 or 413 exists, adds 813 and 913 to partAssign with the required time slot
      */
     private void specialCases() {
-		Boolean found313 = false,
-				found413 = false;
-		Lab q813 = new Lab("CPSC813"), //quiz 813
-			q913 = new Lab("CPSC913"); //quiz 913
-		Slot s = findByDayTime(false, "TU", "18:00");
-    	for (Lecture var : courseList) {
-    		String id = var.toString().split("LEC")[0];
-    		if (id.equals("CPSC313")) {
-    			if (!found313){ //Add 813
-    				found313 = true;
-    				labList.add(q813);
-    				if (s != null) {
-    					partAssign.put(q813, s);
-    				} else {
-    					System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
-        	    		System.exit(0); //does this actually exit?
-        	    	}    				
-    			}
-    			for (Course c : var.getMutex()) { //Add all var mutex to q913
-    				q813.addMutex(c);
-    				c.addMutex(q813);
-    			}
-    			var.addMutex(q813);
-    			q813.addMutex(var);
-    		} else if (id.equals("CPSC413")) {
-    			if (!found413){ //Add 913
-    				found413 = true;
-    				labList.add(q913);
-    				if (s != null) {
-    					partAssign.put(q913, s);
-    				} else {
-    					System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
-        	    		System.exit(0); //Does this actually exit?
-        	    	}    				
-    			}
-    			for (Course c : var.getMutex()) { //Add all var mutex to q913
-    				q913.addMutex(c);
-    				c.addMutex(q913);
-    			}
-    			var.addMutex(q913);
-    			q913.addMutex(var);
-    		}    		
-    	}
+        Boolean found313 = false,
+                found413 = false;
+        Lab q813 = new Lab("CPSC813"), //quiz 813
+            q913 = new Lab("CPSC913"); //quiz 913
+        Slot s = findByDayTime(false, "TU", "18:00");
+        for (Lecture var : courseList) {
+            String id = var.toString().split("LEC")[0];
+            if (id.equals("CPSC313")) {
+                if (!found313){ //Add 813
+                    found313 = true;
+                    labList.add(q813);
+                    if (s != null) {
+                        partAssign.put(q813, s);
+                    } else {
+                        System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
+                        System.exit(0); //does this actually exit?
+                    }                   
+                }
+                for (Course c : var.getMutex()) { //Add all var mutex to q913
+                    q813.addMutex(c);
+                    c.addMutex(q813);
+                }
+                var.addMutex(q813);
+                q813.addMutex(var);
+            } else if (id.equals("CPSC413")) {
+                if (!found413){ //Add 913
+                    found413 = true;
+                    labList.add(q913);
+                    if (s != null) {
+                        partAssign.put(q913, s);
+                    } else {
+                        System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
+                        System.exit(0); //Does this actually exit?
+                    }                   
+                }
+                for (Course c : var.getMutex()) { //Add all var mutex to q913
+                    q913.addMutex(c);
+                    c.addMutex(q913);
+                }
+                var.addMutex(q913);
+                q913.addMutex(var);
+            }           
+        }
     }
-    
     
     /**
      * Get a pair of course & slot. 
@@ -263,3 +269,4 @@ public class Parser {
         return initialInstance;
     }
 }
+
