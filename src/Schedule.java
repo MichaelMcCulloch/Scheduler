@@ -87,7 +87,8 @@ public class Schedule implements Comparable<Schedule> {
     private int evalPref() {
         int sum = 0;
         for (Triple<Course, Slot, Integer> pref : Model.getInstance().getPreferences()) {
-            if (!assignments.get(pref.fst()).equals(pref.snd())) {
+        	Slot slot = assignments.get(pref.fst());
+            if (slot == null || (!slot.equals(pref.snd()))) {
                 sum += pref.trd();
             }
         }
@@ -97,7 +98,9 @@ public class Schedule implements Comparable<Schedule> {
     private int evalPair() {
         int sum = 0;
         for (Pair<Course, Course> pair : Model.getInstance().getTogether()) {
-            if (!assignments.get(pair.fst()).equals(assignments.get(pair.snd()))) {
+        	Slot slot1 = assignments.get(pair.fst());
+        	Slot slot2 = assignments.get(pair.snd());
+            if (slot1 == null || slot2 == null || (!slot1.equals(slot2))) {
                 sum += Model.getInstance().getPenalies(Model.Penalty.Pair);
             }
         }
@@ -105,8 +108,19 @@ public class Schedule implements Comparable<Schedule> {
     }
 
     private int evalSecDiff() {
-        //Need a good way to compare the assignment of a course section to other sections of the same course. Going to think about this for a bit.
-        return 0;
+        int sum = 0;
+        for (Course entry : Model.getInstance().getCourses()) {
+        	if (entry instanceof Lecture) {
+        		for (Lecture sibling : ((Lecture)entry).getSiblings()) {
+        			Slot slot1 = assignments.get(sibling);
+        			Slot slot2 = assignments.get(entry);
+        			if (slot1 != null && slot2 != null && slot1.equals(slot2)) {
+        				sum += Model.getInstance().getPenalies(Model.Penalty.SectionDifference);
+        			}
+        		}
+        	}
+        }
+        return sum;
     }
 
     /**
