@@ -50,7 +50,7 @@ public class Parser {
         try {
             initialInstance = new Schedule(null, partAssign);
         } catch (Exception e) {
-            //wont actually throw an exception
+            System.exit(1);
         }
         
     }
@@ -153,7 +153,9 @@ public class Parser {
             String next = q.remove();
             String[] cdtTuple = next.split(",");
             Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
-            if (cs == null) continue;
+            if (cs == null) { //Bad assignment
+                System.exit(1);   
+            }
             yes.put(cs.fst(), cs.snd());
         }
         return yes;
