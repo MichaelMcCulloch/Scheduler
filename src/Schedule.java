@@ -12,12 +12,19 @@ public class Schedule implements Comparable<Schedule> {
     private int depth, score;
     private Map<Slot, Integer> counters;
 
-    public Schedule(Schedule parent, final Map<Course, Slot> assignments) {
+    public class ConstraintsFailed extends Exception{
+        public ConstraintsFailed(){
+            super();
+        }
+    }
+
+    public Schedule(Schedule parent, final Map<Course, Slot> assignments) throws ConstraintsFailed {
         this(parent, assignments, null);
     }
 
-    public Schedule(Schedule parent, final Map<Course, Slot> assignments, Pair<Course, Slot> newAssignment) {
+    public Schedule(Schedule parent, final Map<Course, Slot> assignments, Pair<Course, Slot> newAssignment) throws ConstraintsFailed{
         //fresh copy of assignments
+        
         this.assignments = new HashMap<>();
         this.counters = new HashMap<>();
         for (Entry<Course, Slot> var : assignments.entrySet()) {
@@ -26,8 +33,10 @@ public class Schedule implements Comparable<Schedule> {
             insertElem(c, s);
         }
         //add the new node
-        if (newAssignment != null)
+        if (newAssignment != null) {
+            if (!constr(newAssignment)) throw new ConstraintsFailed();
             insertElem(newAssignment.fst(), newAssignment.snd());
+        }
         this.parent = parent;
         this.depth = (parent == null) ? 0 : parent.depth + 1;
         this.score = eval();
@@ -148,8 +157,12 @@ public class Schedule implements Comparable<Schedule> {
                 slots = new ArrayList<>(Model.getInstance().getLabSlots());
             }
             for (Slot s : slots) {
-                Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
-                n.add(next);
+                try{
+                    Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
+                    n.add(next);
+                } catch (Exception e) {
+                    //new assignment did not meet constraints.
+                }
             }
         } else {
             //If you get here, you have just called div on a solved node. Why. 
@@ -166,20 +179,7 @@ public class Schedule implements Comparable<Schedule> {
 
         List<Schedule> unsolvedNodes = new ArrayList<>();
 
-        for (Schedule schedule : n) {
-
-            boolean constr = true; //schedule.constr();
-            boolean solved = false;
-            if (constr) {
-                solved = false; //schedule.solved();
-            }
-
-            if (constr && !solved) {
-                unsolvedNodes.add(schedule);
-            } else if (solved) {
-                completion.accept(schedule);
-            }
-        }
+        
         return unsolvedNodes;
     }
 
@@ -229,7 +229,7 @@ public class Schedule implements Comparable<Schedule> {
                         return false;
                     }
                 }
-                if (conflict instanceof Lab && hasLectureOverlap(newAssignment.snd(), conflictTimeSlot)) {
+                if (conflict instanceof Lab && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
                     return false;
                 }
             }
@@ -242,7 +242,7 @@ public class Schedule implements Comparable<Schedule> {
                         return false;
                     }
                 }
-                if (conflict instanceof Lecture && hasLabOverlap(newAssignment.snd(), conflictTimeSlot)) {
+                if (conflict instanceof Lecture && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
                     return false;
                 }
             }
@@ -287,18 +287,10 @@ public class Schedule implements Comparable<Schedule> {
     public boolean constrUnwanted(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
-
-        for (Course unwantedCourse : (Model.getInstance().getUnwanted()).fst()) {
-            if (c == unwantedCourse) {
-                Slot newlyAssignedSlot = newAssignment.snd();
-                Slot unwantedSlot = (Model.getInstance().getUnwanted()).snd();
-                if (newlyAssignedSlot == unwantedSlot) {
-                    return false;
-                    break;
-                }
-            }
-        }
-        return true;
+        Slot badSlot = Model.getInstance().getUnwanted().get(c);
+        if (badSlot == null) return true;
+        else if (badSlot == newAssignment.snd()) return false;
+        else return true;
     }
 
     /**
@@ -309,19 +301,15 @@ public class Schedule implements Comparable<Schedule> {
         Course c = newAssignment.fst();
 
         if (c instanceof Lecture) {
-            char sectionStartingNum = charAt(11);
-            if (sectionStartingNum == '9') {
+            int sectionNum = c.getSectNum();
+            if (sectionNum >= 900) {
                 Slot s = newAssignment.snd();
-                if (s.getHour() != "18:00" || s.getHour() != "19:00" || s.getHour() != "20:00"
-                        || s.getHour() != "18:30") {
+                if (s.getTime() < 18 * 60) {
                     return false;
                 }
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
+            } 
+        } 
+        return true;
     }
 
     /**
@@ -338,9 +326,8 @@ public class Schedule implements Comparable<Schedule> {
             if (labTime.byDayTime("Tue", "11:00") || labTime.byDayTime("Tue", "12:00")) {
                 return false;
             }
-        } else {
-            return true;
-        }
+        } 
+        return true;
     }
 
     /**

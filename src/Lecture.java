@@ -46,4 +46,9 @@ public class Lecture implements Course {
     public boolean isSibling(Lecture section) {
     	return (this.name.split("LEC")[0].equals(section.toString().split("LEC")[0]) ? true : false); //check if names are the same up to "LEC"
     }
+
+    @Override
+    public int getSectNum() {
+        return courseNum;
+    }
 }

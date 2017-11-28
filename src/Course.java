@@ -13,4 +13,6 @@ public interface Course {
     public List<Course> getMutex();
 
     public void addMutex(Course c);
+
+    public int getSectNum();
 }

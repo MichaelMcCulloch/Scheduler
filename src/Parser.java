@@ -47,7 +47,12 @@ public class Parser {
         Model m = Model.getInstance();
         m.setData(allCourses, labSlots, courseSlots, unwanted, preferences, together, incompatible);
         
-        initialInstance = new Schedule(null, partAssign);
+        try {
+            initialInstance = new Schedule(null, partAssign);
+        } catch (Exception e) {
+            //wont actually throw an exception
+        }
+        
     }
 
     private String parseName(Queue<String> q) {

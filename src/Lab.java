@@ -31,5 +31,10 @@ public class Lab implements Course {
     public void addMutex(Course c) {
         mutex.add(c);
     }
+    
+    @Override
+    public int getSectNum() {
+        return courseNum;
+    }
 
 }
