@@ -83,6 +83,10 @@ public class Parser {
         			alreadyParsed.addSibling(next);		//add reciprocal references to sibling list
         			next.addSibling(alreadyParsed);
         		}
+        		if (alreadyParsed.both500s(next)) {
+        			alreadyParsed.addMutex(next);
+        			next.addMutex(alreadyParsed);
+        		}
         	}
             courses.add(next);
         }

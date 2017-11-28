@@ -45,4 +45,9 @@ public class Lecture implements Course {
     public boolean isSibling(Lecture section) {
     	return (this.name.split("LEC")[0].equals(section.toString().split("LEC")[0]) ? true : false); //check if names are the same up to "LEC"
     }
+    
+    public boolean both500s(Lecture section) {
+    	return (this.name.substring(0,5).equals("CPSC5") &&
+		this.name.substring(0,5).equals(section.toString().substring(0,5)));
+    }
 }
