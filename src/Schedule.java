@@ -2,6 +2,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import javax.xml.validation.SchemaFactoryConfigurationError;
+
 /**
  * Schedule
  */
@@ -12,11 +14,15 @@ public class Schedule implements Comparable<Schedule> {
     private int depth, score;
     private Map<Slot, Integer> counters;
 
+
+
     public class ConstraintsFailed extends Exception{
         public ConstraintsFailed(){
             super();
         }
     }
+
+  
 
     public Schedule(Schedule parent, final Map<Course, Slot> assignments) throws ConstraintsFailed {
         this(parent, assignments, null);
@@ -159,8 +165,9 @@ public class Schedule implements Comparable<Schedule> {
             for (Slot s : slots) {
                 try{
                     Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
-                    n.add(next);
-                } catch (Exception e) {
+                    if (next.solved()) completion.accept(next);
+                    else n.add(next);
+                } catch (Schedule.ConstraintsFailed e) {
                     //new assignment did not meet constraints.
                 }
             }
