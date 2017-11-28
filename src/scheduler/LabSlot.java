@@ -1,3 +1,4 @@
+package scheduler;
 /**
  * LabSlot implements Slot
  */
