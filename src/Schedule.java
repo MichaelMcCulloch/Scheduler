@@ -252,8 +252,9 @@ public class Schedule implements Comparable<Schedule> {
 
     /**
     * Checks if a lecture time has an overlap with a lab time
+    * Does not work for lab-lab conflicts
     */
-    public boolean hasLectureOverlap(Slot lectureTime, Slot labTime) {
+    public boolean hasOverlap(Slot lectureTime, Slot labTime) {
         String lectureDay = lectureTime.getDay();
         int lecTime = lectureTime.getTime();
         String labDay = labTime.getDay();
@@ -263,77 +264,21 @@ public class Schedule implements Comparable<Schedule> {
         int lectureHour = lecTime / 60;
 
         if (lecTime <= laboratoryTime){
-            if (lectureDay == "MO" && (labDay == "MO" || labDay == "FR")) {
+            if ((lectureDay == "MO" ||lectureDay == "FR") && (labDay == "MO" || labDay == "FR")) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
             } else if (lectureDay == "TU" && labDay == lectureDay) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
             }
-            return false;
         }
 
         if (laboratoryTime <= lecTime){
-            if (lectureDay == "MO" && (labDay == "MO" || labDay == "FR")) {
+            if ((lectureDay == "MO" ||lectureDay == "FR") && (labDay == "MO" || labDay == "FR")) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
             } else if (lectureDay == "TU" && labDay == lectureDay) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
             }
-            return false;
         }
-        /*
-
-        if (lecHr[1] == "00") {
-            lectureHour = Float.parseFloat(lecHr[0]);
-        } else {
-            lectureHour = Float.parseFloat(lecHr[0]) + 0.5;
-        }
-        
-        if (lectureTime.byDayTime(labDay, labHour)) {
-            return true;
-        } else if (labDay == "Fri" && lectureDay == "Mon" && lectureHour == (labHour + 1)) {
-            return true;
-        } else if (labDay == "Tue" && lectureDay == "Tue" && lectureHour == (labHour - 0.5)) {
-            return true;
-        } else if (labDay == "Tue" && lectureDay == "Tue" && lectureHour == (labHour + 0.5)) {
-            return true;
-        } else {
-            return false;
-        }
-        */
-    }
-
-    /**
-    * Checks if a lab time has an overlap with a lecture time
-    */
-    public boolean hasLabOverlap(Slot labTime, Slot lectureTime) {
-        String lectureDay = lectureTime.getDay();
-        String lectureHourString = lectureTime.getHour();
-        String labDay = labTime.getDay();
-        String labHourString = labTime.getHour();
-
-        String[] lecHr = lectureHourString.split(":");
-        String[] labHr = labHourString.split(":");
-
-        float labHour = Float.parseFloat(labHr[0]);
-        float lectureHour;
-        if (lecHr[1] == "00") {
-            lectureHour = Float.parseFloat(lecHr[0]);
-        } else {
-            lectureHour = Float.parseFloat(lecHr[0]) + 0.5;
-        }
-
-        if (labTime.byDayTime(lectureDay, lectureHour)) {
-            return true;
-        } else if (labDay == "Fri" && lectureDay == "Mon" && labHour == (lectureHour - 1)) {
-            return true;
-        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour + 1)) {
-            return true;
-        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour + 0.5)) {
-            return true;
-        } else if (labDay == "Tue" && lectureDay == "Tue" && labHour == (lectureHour - 0.5)) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     /**
