@@ -225,7 +225,6 @@ public class Parser {
         }
     }
     
-
     /**
      * Get a pair of course & slot. 
      */
@@ -236,7 +235,7 @@ public class Parser {
         if (s == null) return null;
         return new Pair<Course,Slot>(c,s);
     }
-
+    
     private Course findByName(String identifier){
         List<Course> allCourses = new ArrayList<>();
         allCourses.addAll(labList);

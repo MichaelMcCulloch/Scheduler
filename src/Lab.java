@@ -6,7 +6,9 @@ import java.util.List;
  */
 public class Lab implements Course {
 
+
     private List<Course> mutex = new ArrayList<>();
+
     private String name;
     private int courseNum;
     public Lab(String id){
@@ -36,5 +38,4 @@ public class Lab implements Course {
     public int getSectNum() {
         return courseNum;
     }
-
 }
