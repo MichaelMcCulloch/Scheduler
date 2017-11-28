@@ -7,10 +7,12 @@ import java.util.List;
 public class Lecture implements Course {
 	private List<Lecture> siblings = new ArrayList<>();
     private List<Course> mutex = new ArrayList<>();
-	private String name;
+    private String name;
+    private int courseNum;
 
     public Lecture(String id){
         name = id;
+        courseNum = Integer.parseInt(id.substring(4, 7));
     }
     @Override
     public boolean byName(String name) {

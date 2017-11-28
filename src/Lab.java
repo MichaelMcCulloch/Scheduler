@@ -8,8 +8,11 @@ public class Lab implements Course {
 
     private List<Course> mutex = new ArrayList<>();
     private String name;
+    private int courseNum;
     public Lab(String id){
         name = id;
+        //Assume course id is 4 characters, course num is 3, no spaces
+        courseNum = Integer.parseInt(id.substring(4, 7));
     }
     @Override
     public boolean byName(String name) {
