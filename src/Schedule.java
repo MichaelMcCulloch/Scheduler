@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
-
 /**
  * Schedule
  */
@@ -63,7 +62,7 @@ public class Schedule implements Comparable<Schedule> {
     }
 
     private int eval() {
-        return  evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
+        return evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
                 + evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
                 + evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
                 + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference);
@@ -87,7 +86,7 @@ public class Schedule implements Comparable<Schedule> {
     private int evalPref() {
         int sum = 0;
         for (Triple<Course, Slot, Integer> pref : Model.getInstance().getPreferences()) {
-        	Slot slot = assignments.get(pref.fst());
+            Slot slot = assignments.get(pref.fst());
             if (slot == null || (!slot.equals(pref.snd()))) {
                 sum += pref.trd();
             }
@@ -98,8 +97,8 @@ public class Schedule implements Comparable<Schedule> {
     private int evalPair() {
         int sum = 0;
         for (Pair<Course, Course> pair : Model.getInstance().getTogether()) {
-        	Slot slot1 = assignments.get(pair.fst());
-        	Slot slot2 = assignments.get(pair.snd());
+            Slot slot1 = assignments.get(pair.fst());
+            Slot slot2 = assignments.get(pair.snd());
             if (slot1 == null || slot2 == null || (!slot1.equals(slot2))) {
                 sum += Model.getInstance().getPenalies(Model.Penalty.Pair);
             }
@@ -110,15 +109,15 @@ public class Schedule implements Comparable<Schedule> {
     private int evalSecDiff() {
         int sum = 0;
         for (Course entry : Model.getInstance().getCourses()) {
-        	if (entry instanceof Lecture) {
-        		for (Lecture sibling : ((Lecture)entry).getSiblings()) {
-        			Slot slot1 = assignments.get(sibling);
-        			Slot slot2 = assignments.get(entry);
-        			if (slot1 != null && slot2 != null && slot1.equals(slot2)) {
-        				sum += Model.getInstance().getPenalies(Model.Penalty.SectionDifference);
-        			}
-        		}
-        	}
+            if (entry instanceof Lecture) {
+                for (Lecture sibling : ((Lecture) entry).getSiblings()) {
+                    Slot slot1 = assignments.get(sibling);
+                    Slot slot2 = assignments.get(entry);
+                    if (slot1 != null && slot2 != null && slot1.equals(slot2)) {
+                        sum += Model.getInstance().getPenalies(Model.Penalty.SectionDifference);
+                    }
+                }
+            }
         }
         return sum;
     }
@@ -187,12 +186,9 @@ public class Schedule implements Comparable<Schedule> {
     /**
      * Decide if this problem instance meets the hard constraints by checking the newly assigned slot
      */
-    public boolean constr(Pair<Course,Slot> newAssignment) {
-        return constrMax(newAssignment)
-                && constrCourseConflict(newAssignment)
-                && constrUnwanted(newAssignment)
-                && constrEveningSlot(newAssignment)
-                && constrTue11(newAssignment);
+    public boolean constr(Pair<Course, Slot> newAssignment) {
+        return constrMax(newAssignment) && constrCourseConflict(newAssignment) && constrUnwanted(newAssignment)
+                && constrEveningSlot(newAssignment) && constrTue11(newAssignment);
     }
 
     //TODO: ADDING THE LIST OF ALL 500 COURSES TO THE MUTEX LIST FOR EACH 500 LEVEL COURSE.
@@ -200,18 +196,18 @@ public class Schedule implements Comparable<Schedule> {
     /**
     * Checks the hard constraints of courseMax and labMax
     */
-    public boolean constrMax(Pair<Course,Slot> newAssignment){
+    public boolean constrMax(Pair<Course, Slot> newAssignment) {
 
         Slot s = newAssignment.snd();
 
         if (s instanceof CourseSlot) {
             int courseCounter = counters.get(s);
-            if (courseCounter > s.courseMax) {
+            if (courseCounter > s.getMax()) {
                 return false;
             }
         } else if (s instanceof LabSlot) {
             int labCounter = counters.get(s);
-            if (labCounter > s.labMax) {
+            if (labCounter > s.getMax()) {
                 return false;
             }
         }
@@ -221,7 +217,7 @@ public class Schedule implements Comparable<Schedule> {
     /**
     * Checks the hard constraints of having different time slots for a course and its corresponding labs
     */
-    public boolean constrCourseConflict(Pair<Course,Slot> newAssignment){
+    public boolean constrCourseConflict(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
 
@@ -231,39 +227,27 @@ public class Schedule implements Comparable<Schedule> {
                 if (conflict instanceof Lecture) {
                     if (newAssignment.snd() == conflictTimeSlot) {
                         return false;
-                        break;
-                    } else {
-                        return true;
                     }
                 }
                 if (conflict instanceof Lab && hasLectureOverlap(newAssignment.snd(), conflictTimeSlot)) {
                     return false;
-                    break;
-                } else {
-                    return true;
-                } 
+                }
             }
-            
+
         } else if (c instanceof Lab) {
             for (Course conflict : c.getMutex()) {
                 Slot conflictTimeSlot = assignments.get(conflict);
                 if (conflict instanceof Lab) {
                     if (newAssignment.snd() == conflictTimeSlot) {
                         return false;
-                        break;
-                    } else {
-                        return true;
                     }
-                } 
+                }
                 if (conflict instanceof Lecture && hasLabOverlap(newAssignment.snd(), conflictTimeSlot)) {
                     return false;
-                    break;
-                } else {
-                    return true;
                 }
-                
             }
         }
+        return true;
     }
 
     /**
@@ -271,21 +255,38 @@ public class Schedule implements Comparable<Schedule> {
     */
     public boolean hasLectureOverlap(Slot lectureTime, Slot labTime) {
         String lectureDay = lectureTime.getDay();
-        String lectureHourString = lectureTime.getHour();
+        int lecTime = lectureTime.getTime();
         String labDay = labTime.getDay();
-        String labHourString = labTime.getHour();
+        int laboratoryTime = labTime.getTime();
 
-        String[] lecHr = lectureHourString.split(":");
-        String[] labHr = labHourString.split(":");
+        int labHour = laboratoryTime / 60;
+        int lectureHour = lecTime / 60;
 
-        float labHour = Float.parseFloat(labHr[0]);
-        float lectureHour;
+        if (lecTime <= laboratoryTime){
+            if (lectureDay == "MO" && (labDay == "MO" || labDay == "FR")) {
+                if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
+            } else if (lectureDay == "TU" && labDay == lectureDay) {
+                if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
+            }
+            return false;
+        }
+
+        if (laboratoryTime <= lecTime){
+            if (lectureDay == "MO" && (labDay == "MO" || labDay == "FR")) {
+                if (laboratoryTime + labTime.getDuration() > lecTime) return true;
+            } else if (lectureDay == "TU" && labDay == lectureDay) {
+                if (laboratoryTime + labTime.getDuration() > lecTime) return true;
+            }
+            return false;
+        }
+        /*
+
         if (lecHr[1] == "00") {
             lectureHour = Float.parseFloat(lecHr[0]);
         } else {
             lectureHour = Float.parseFloat(lecHr[0]) + 0.5;
         }
-
+        
         if (lectureTime.byDayTime(labDay, labHour)) {
             return true;
         } else if (labDay == "Fri" && lectureDay == "Mon" && lectureHour == (labHour + 1)) {
@@ -297,6 +298,7 @@ public class Schedule implements Comparable<Schedule> {
         } else {
             return false;
         }
+        */
     }
 
     /**
@@ -334,12 +336,10 @@ public class Schedule implements Comparable<Schedule> {
         }
     }
 
-
-
     /**
     * Checks the hard constraints for unwanted time slots for specific courses
     */
-    public boolean constrUnwanted(Pair<Course,Slot> newAssignment) {
+    public boolean constrUnwanted(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
 
@@ -359,7 +359,7 @@ public class Schedule implements Comparable<Schedule> {
     /**
     * Checks the hard constraints for evening time slots assigned to LEC 9 courses
     */
-    public boolean constrEveningSlot(Pair<Course,Slot> newAssignment){
+    public boolean constrEveningSlot(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
 
@@ -367,7 +367,8 @@ public class Schedule implements Comparable<Schedule> {
             char sectionStartingNum = charAt(11);
             if (sectionStartingNum == '9') {
                 Slot s = newAssignment.snd();
-                if (s.getHour() != "18:00" || s.getHour() != "19:00" || s.getHour() != "20:00" || s.getHour() != "18:30") {
+                if (s.getHour() != "18:00" || s.getHour() != "19:00" || s.getHour() != "20:00"
+                        || s.getHour() != "18:30") {
                     return false;
                 }
             } else {
@@ -378,26 +379,24 @@ public class Schedule implements Comparable<Schedule> {
         }
     }
 
-
     /**
     * Checks the hard constraints for no courses to be scheduled at Tue 11-12:30
     */
-    public boolean constrTue11(Pair<Course,Slot> newAssignment){
+    public boolean constrTue11(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
 
-        if (c instanceof Lecture && (newAssignment.snd()).byDayTime("Tue","11:00")) {
+        if (c instanceof Lecture && (newAssignment.snd()).byDayTime("Tue", "11:00")) {
             return false;
         } else if (c instanceof Lab) {
             Slot labTime = newAssignment.snd();
-            if (labTime.byDayTime("Tue","11:00") || labTime.byDayTime("Tue","12:00")) {
+            if (labTime.byDayTime("Tue", "11:00") || labTime.byDayTime("Tue", "12:00")) {
                 return false;
             }
         } else {
             return true;
         }
     }
-
 
     /**
      * If the instance is not solved/unsolvable, return false;
