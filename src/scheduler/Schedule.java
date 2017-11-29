@@ -185,10 +185,10 @@ public class Schedule implements Comparable<Schedule> {
          * TODO: Want to be checking for constaints and solvedness in the insertElem()/the constructor
          */
 
-        List<Schedule> unsolvedNodes = new ArrayList<>();
+        //List<Schedule> unsolvedNodes = new ArrayList<>();
 
         
-        return unsolvedNodes;
+        return n;
     }
 
     /**

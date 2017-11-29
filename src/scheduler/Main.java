@@ -15,16 +15,20 @@ public class Main {
         Queue<Schedule> startingNodes = new LinkedList<>();
         startingNodes.add(root);
         while (startingNodes.size() < poolSize){
-            startingNodes.addAll(startingNodes.remove().div(Model.getInstance().checkBest));
+        	//System.out.println(startingNodes);
+        	Schedule A =startingNodes.remove();
+        	//System.out.println(A.div(Model.getInstance().checkBest));
+            startingNodes.addAll(A.div(Model.getInstance().checkBest));
         }
 
         
         // Round robin add them to the work queues of the searcher.
         List<Schedule>[] workQueues = new List[poolSize];
-        for (int i = 0; i < startingNodes.size(); i++){
+        int startingNodeSize = startingNodes.size();
+        for (int i = 0; i < startingNodeSize; i++){
             if ((workQueues[i % poolSize]) == null)
                 workQueues[i % poolSize] = new ArrayList<>();
-            workQueues[i * poolSize].add(startingNodes.remove());
+            workQueues[i % poolSize].add(startingNodes.remove());
         }
         return workQueues;
     }
@@ -64,15 +68,20 @@ public class Main {
         }
 
         //TODO: replace this with termination condition
+        
         try {
             Thread.sleep(5000);
         } catch (Exception e) {
             //TODO: handle exception
         }
-
+        
+        
         Searcher.stop();
         pool.shutdown();
-
+        
+        Schedule best = Model.getInstance().getBest();
+        
+        System.out.println(best);
         /**
          * TODO: Printout Model.best;
          */
