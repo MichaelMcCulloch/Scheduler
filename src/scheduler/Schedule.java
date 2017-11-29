@@ -174,8 +174,8 @@ public class Schedule implements Comparable<Schedule> {
             }
         } else {
             //If you get here, you have just called div on a solved node. Why. 
-            System.out.println("Error, This node is already solved");
-            System.out.println(this);
+            //System.out.println("Error, This node is already solved");
+            //System.out.println(this);
 
         }
 
@@ -355,7 +355,10 @@ public class Schedule implements Comparable<Schedule> {
      * if it is below the bound, discard it
      */
     public boolean solved() {
-        return false;
+        for (Course c : Model.getInstance().getCourses()) {
+        	if (assignments.get(c) == null) return false;
+		}
+        return true;
     }
 
     public String toString() {
