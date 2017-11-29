@@ -1,3 +1,4 @@
+package scheduler;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -194,8 +195,12 @@ public class Schedule implements Comparable<Schedule> {
      * Decide if this problem instance meets the hard constraints by checking the newly assigned slot
      */
     public boolean constr(Pair<Course, Slot> newAssignment) {
-        return constrMax(newAssignment) && constrCourseConflict(newAssignment) && constrUnwanted(newAssignment)
-                && constrEveningSlot(newAssignment) && constrTue11(newAssignment);
+         		boolean a =constrMax(newAssignment);
+         		boolean b =constrCourseConflict(newAssignment);
+         		boolean c =constrUnwanted(newAssignment);
+         		boolean d =constrEveningSlot(newAssignment);
+         		boolean e =constrTue11(newAssignment);
+         		return a && b && c && d && e;
     }
 
     //TODO: ADDING THE LIST OF ALL 500 COURSES TO THE MUTEX LIST FOR EACH 500 LEVEL COURSE.
@@ -206,16 +211,20 @@ public class Schedule implements Comparable<Schedule> {
     public boolean constrMax(Pair<Course, Slot> newAssignment) {
 
         Slot s = newAssignment.snd();
-
+        
         if (s instanceof CourseSlot) {
-            int courseCounter = counters.get(s);
-            if (courseCounter > s.getMax()) {
-                return false;
+            Integer courseCounter = counters.get(s);
+            if (courseCounter!=null){
+	            if (courseCounter > s.getMax()) {
+	                return false;
+	            }
             }
         } else if (s instanceof LabSlot) {
-            int labCounter = counters.get(s);
-            if (labCounter > s.getMax()) {
-                return false;
+            Integer labCounter = counters.get(s);
+            if (labCounter!=null) {
+	            if (labCounter > s.getMax()) {
+	                return false;
+	            }
             }
         }
         return true;

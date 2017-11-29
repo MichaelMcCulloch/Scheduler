@@ -1,34 +1,36 @@
+package scheduler;
 /**
- * CourseSlot implements Slot
+ * LabSlot implements Slot
  */
-public class CourseSlot implements Slot {
+public class LabSlot implements Slot {
+
     private String day;
-    private int time; //TODO: Make Double
-    private int courseMax, courseMin;
+    private int  time;
+    private int labMax, labMin;
     private int duration;
 
-    public CourseSlot(String input) {
-
+    public LabSlot(String input){
         String[] dayTimeMaxMin = input.split(",");
         day = dayTimeMaxMin[0];
         String[] hm = dayTimeMaxMin[1].split(":");
         time = Integer.parseInt(hm[0]) * 60;
         time += Integer.parseInt(hm[1]);
-        courseMax = Integer.parseInt(dayTimeMaxMin[2]);
-        courseMin = Integer.parseInt(dayTimeMaxMin[3]);
+        labMax = Integer.parseInt(dayTimeMaxMin[2]);
+        labMin = Integer.parseInt(dayTimeMaxMin[3]);
 
         switch (day) {
-        case "MO":
-            duration = 50;
-            break;
-        case "TU":
-            duration = 75;
-            break;
-        default:
-            break;
-        }
+            case "MO":
+            case "TU":
+                duration = 50;
+                break;
+            case "FR": 
+                duration = 110;
+                break;
+            default:
+                break;
+            }
     }
-
+    
     @Override
     public boolean byDayTime(String day, String time) {
         String[] hm = time.split(":");
@@ -41,32 +43,24 @@ public class CourseSlot implements Slot {
     public boolean byDayTime(String day, int time) {
         return this.day.equals(day) && this.time == time;
     }
-
+    
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
-        return "LEC@" + day + ":" + time / 60 + ":" + time % 60;
+    	// TODO Auto-generated method stub
+    	return "LAB@" +  day + ":" + time / 60 + ":" + time % 60;
     }
 
     @Override
-    public int getMax() {
-        return this.courseMax;
-    }
+    public int getMax() { return this.labMax; }
+    
+    @Override
+    public int getMin() { return this.labMin; }
 
     @Override
-    public int getMin() {
-        return this.courseMin;
-    }
+    public int getTime() { return this.time; }
 
     @Override
-    public int getTime() {
-        return this.time;
-    }
-
-    @Override
-    public String getDay() {
-        return this.day;
-    }
+    public String getDay() { return this.day; }
 
     @Override
     public int getDuration() {
