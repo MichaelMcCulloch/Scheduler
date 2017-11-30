@@ -2,6 +2,7 @@ package scheduler;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.xml.validation.SchemaFactoryConfigurationError;
 
@@ -77,6 +78,10 @@ public class Schedule implements Comparable<Schedule> {
         return (this.score > other.score);
     }
 
+    private int boundCheck() {
+    	return score-evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
+    }
+    
     private int eval() {
         return evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
                 + evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
@@ -143,7 +148,7 @@ public class Schedule implements Comparable<Schedule> {
      * Accepting a function like a parameter
      * runs completion of caller (from main, checks global best; from searcher, checks local best)
      */
-    public List<Schedule> div(Consumer<Schedule> completion) {
+    public List<Schedule> div(Consumer<Schedule> checkBest, Function<Integer, Boolean> boundCheck) {
         List<Schedule> n = new ArrayList<>();
 
         //find a class not used in the current assignment
@@ -166,8 +171,11 @@ public class Schedule implements Comparable<Schedule> {
             for (Slot s : slots) {
                 try{
                     Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
-                    if (next.solved()) completion.accept(next);
-                    else n.add(next);
+                    
+                    boolean satisfactory = boundCheck.apply(next.boundCheck());
+                    
+                    if (next.solved()) checkBest.accept(next);
+                    else if (satisfactory) n.add(next);
                 } catch (Schedule.ConstraintsFailed e) {
                     //new assignment did not meet constraints.
                 }

@@ -36,16 +36,6 @@ public class Lecture implements Course {
         mutex.add(c);
     }
     
-    @Override
-    public List<Course> getMutex() {
-    	return this.mutex;
-    }
-
-    @Override
-    public void addMutex(Course c) {
-    	mutex.add(c);
-    }
-    
     
     public List<Lecture> getSiblings() {
     	return this.siblings;

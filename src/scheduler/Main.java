@@ -14,11 +14,15 @@ public class Main {
         // Div it until there are more nodes than searchers
         Queue<Schedule> startingNodes = new LinkedList<>();
         startingNodes.add(root);
-        while (startingNodes.size() < poolSize){
-        	//System.out.println(startingNodes);
-        	Schedule A =startingNodes.remove();
-        	//System.out.println(A.div(Model.getInstance().checkBest));
-            startingNodes.addAll(A.div(Model.getInstance().checkBest));
+        try {
+	        while (startingNodes.size() < poolSize){
+	        	//System.out.println(startingNodes);
+	        	Schedule A =startingNodes.remove();
+	        	//System.out.println(A.div(Model.getInstance().checkBest));
+	            startingNodes.addAll(A.div(Model.getInstance().checkBest, Model.getInstance().checkBound));
+	        }
+        } catch (NoSuchElementException e) {
+        	System.out.println("oh noes!");
         }
 
         
@@ -63,6 +67,7 @@ public class Main {
         ExecutorService pool = Executors.newFixedThreadPool(poolSize);
         Searcher[] searchers = new Searcher[poolSize];
         for (int i = 0; i < poolSize; i++) {
+        	if (workQueues[i] == null || workQueues[i].isEmpty()) continue;
             searchers[i] = new Searcher(workQueues[i]);
             pool.execute(searchers[i]);
         }

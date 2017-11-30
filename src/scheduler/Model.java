@@ -2,6 +2,7 @@ package scheduler;
 import java.util.*;
 import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Responsible for the creation of threads. Since all the peices of the tree exist here in the queue, this might as well be the model
@@ -102,20 +103,20 @@ public class Model {
             checkBest(sched);
         }
     };
+    
+    public Function<Integer, Boolean> checkBound = new Function<Integer, Boolean>() {
+    	public Boolean apply(Integer i) {
+    		Boolean ret = false;
+    		boundLock.lock();
+    		if (bound == null || bound >= i) {
+    			bound = i;
+    			ret = true;
+    		}
+    		boundLock.unlock();
+    		return ret;
+    	}
+    };
 
-    public Integer checkBound(int newBound){
-        boundLock.lock();
-        Integer better = null;
-        if (bound == null || newBound < bound) {
-            bound = newBound;
-            better = null;
-        } else {
-            better = bound;
-        }
-
-        boundLock.unlock();
-        return better;
-    }
 
     public List<Course> getCourses(){
         return allCourses;

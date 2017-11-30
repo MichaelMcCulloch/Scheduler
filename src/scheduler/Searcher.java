@@ -1,6 +1,7 @@
 package scheduler;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Searcher 
@@ -14,7 +15,7 @@ public class Searcher implements Runnable {
     private PriorityQueue<Schedule> workQueue;
     private static volatile boolean shutdownSignal = false;
     private Schedule best; //complete schedules only
-    private Integer bound; //TODO: for incomplete schedules
+    private Integer bound;
     private Model model;
 
     public Searcher(List<Schedule> instances) {
@@ -36,7 +37,7 @@ public class Searcher implements Runnable {
         while (!workQueue.isEmpty() && !shutdownSignal) {
             try {
                 Schedule next = workQueue.remove();
-                List<Schedule> children = next.div(checkBest);
+                List<Schedule> children = next.div(checkBest, checkBound);
                 if (children.isEmpty()) continue;
                 workQueue.addAll(children);
             } catch (Exception e) {
@@ -47,6 +48,17 @@ public class Searcher implements Runnable {
         System.out.println("Shutting down: " + workQueue.size());
     }
 
+    
+    Function<Integer, Boolean> checkBound = new Function<Integer, Boolean>() {
+    	public Boolean apply(Integer i) {
+    		if(bound == null || i <= bound) {
+    			bound = i;
+    			model.checkBound.apply(i);
+    			return true;
+    		}
+    		return false;
+    	}
+	};
     //passing a function as a parameter
     Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched) {
@@ -57,13 +69,5 @@ public class Searcher implements Runnable {
         }
     };
 
-    Consumer<Integer> adjustBound = new Consumer<Integer>() {
-        public void accept(Integer newBound) {
-            if (bound == null || newBound < bound){
-                bound = newBound;
-                Integer maybeEvenBetter = model.checkBound(newBound);
-                if (maybeEvenBetter != null) bound = maybeEvenBetter;
-            }
-        }
-    };
+    
 }
