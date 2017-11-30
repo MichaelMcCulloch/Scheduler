@@ -389,7 +389,7 @@ public class Schedule implements Comparable<Schedule> {
 			list.add(new Pair<>(assign.getKey(), assign.getValue()));
 		}
         
-        String out = score + "\n";
+        String out = "Eval " + score + "\n";
         for (Pair<Course, Slot> pair : list) {
 			out += pair.fst() + "\t" + pair.snd() + "\n";
 		}

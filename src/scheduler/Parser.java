@@ -61,7 +61,7 @@ public class Parser {
         counts.sort(new Comparator<Pair<Course,Integer>>() {
             @Override
             public int compare(Pair<Course, Integer> o1, Pair<Course, Integer> o2) {
-                return Integer.compare(o1.snd(), o2.snd());
+                return Integer.compare(o2.snd(), o1.snd());
             }
         });
 

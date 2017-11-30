@@ -58,24 +58,36 @@ public class Main {
         }
 
         Schedule root = p.getInitialInstance();
-
-       
-        List<Schedule>[] workQueues = makeWorkQueues(poolSize, root);
+        List<Schedule> single = new ArrayList<>();
+        single.add(root);
         
         
-        // create worker threads 
-        ExecutorService pool = Executors.newFixedThreadPool(poolSize);
-        Searcher[] searchers = new Searcher[poolSize];
-        for (int i = 0; i < poolSize; i++) {
-        	if (workQueues[i] == null || workQueues[i].isEmpty()) continue;
-            searchers[i] = new Searcher(workQueues[i]);
-            pool.execute(searchers[i]);
+        
+        ExecutorService pool;
+        if (Model.getInstance().getCourses().size() < 16) {
+        	pool = Executors.newFixedThreadPool(1);
+        	Searcher searcher = new Searcher(single);
+        	pool.execute(searcher);
+        } else {
+        	List<Schedule>[] workQueues = makeWorkQueues(poolSize, root);
+            
+            
+            // create worker threads 
+            pool = Executors.newFixedThreadPool(poolSize);
+            Searcher[] searchers = new Searcher[poolSize];
+            for (int i = 0; i < poolSize; i++) {
+            	if (workQueues[i] == null || workQueues[i].isEmpty()) continue;
+                searchers[i] = new Searcher(workQueues[i]);
+                pool.execute(searchers[i]);
+            }
         }
+        
+        
 
         //TODO: replace this with termination condition
         
         try {
-            Thread.sleep(60000);
+            Thread.sleep(6000);
         } catch (Exception e) {
             //TODO: handle exception
         }
