@@ -75,7 +75,7 @@ public class Schedule implements Comparable<Schedule> {
     }
 
     public boolean betterThan(Schedule other) {
-        return (this.score > other.score);
+        return (this.score < other.score);
     }
 
     private int boundCheck() {
