@@ -378,7 +378,18 @@ public class Schedule implements Comparable<Schedule> {
      * @return
      */
     public String prettyPrint() {
-        return "";
+    	
+    	List<Pair<Course, Slot>> list = new ArrayList<>();
+        for (Entry<Course, Slot> assign : this.assignments.entrySet()) {
+			list.add(new Pair<>(assign.getKey(), assign.getValue()));
+		}
+        
+        String out = score + "\n";
+        for (Pair<Course, Slot> pair : list) {
+			out += pair.fst() + "\t" + pair.snd() + "\n";
+		}
+        
+        return out;
     }
 
 }

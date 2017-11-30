@@ -50,7 +50,7 @@ public class Main {
             System.out.println("Point me to the input file:");
             String filename = user.nextLine();
             user.close();
-            f = new File("test.txt");
+            f = new File(filename);
             p = new Parser(f);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
@@ -75,7 +75,7 @@ public class Main {
         //TODO: replace this with termination condition
         
         try {
-            Thread.sleep(5000);
+            Thread.sleep(60000);
         } catch (Exception e) {
             //TODO: handle exception
         }
@@ -86,7 +86,7 @@ public class Main {
         
         Schedule best = Model.getInstance().getBest();
         
-        System.out.println(best);
+        System.out.println(best.prettyPrint());
         /**
          * TODO: Printout Model.best;
          */
