@@ -81,7 +81,7 @@ public class Schedule implements Comparable<Schedule> {
         return (this.score < other.score);
     }
 
-    private int getBound(){
+    public int getBound(){
         return this.bound;
     }
     
