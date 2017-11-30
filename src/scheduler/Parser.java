@@ -1,5 +1,6 @@
 package scheduler;
 import java.util.*;
+import java.util.Map.Entry;
 import java.io.*;
 
 /**
@@ -45,8 +46,32 @@ public class Parser {
         allCourses.addAll(courseList);
         allCourses.addAll(labList);
 
+
+        //Pre-sort the course list by the number of times it occurs in the constraints
+        List<Pair<Course, Integer>> counts = new ArrayList<>();
+        for (Course c : allCourses) {
+            int compatCount = countCompat(c);
+            int unwantedCount = countUnwanted(c);
+            int prefCount = countPreferences(c);
+            int togetherCount = countTogether(c);
+            int sum = compatCount + unwantedCount + prefCount + togetherCount;
+            counts.add(new Pair<Course,Integer>(c, sum));
+        }
+        
+        counts.sort(new Comparator<Pair<Course,Integer>>() {
+            @Override
+            public int compare(Pair<Course, Integer> o1, Pair<Course, Integer> o2) {
+                return Integer.compare(o1.snd(), o2.snd());
+            }
+        });
+
+        List<Course> newList = new ArrayList<>();
+        for (Pair<Course, Integer> var : counts) {
+            newList.add(var.fst());
+        }
+
         Model m = Model.getInstance();
-        m.setData(allCourses, labSlots, courseSlots, unwanted, preferences, together, incompatible);
+        m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible);
         
         try {
             initialInstance = new Schedule(null, partAssign);
@@ -54,6 +79,36 @@ public class Parser {
             System.exit(1);
         }
         
+    }
+    private int countCompat(Course c){
+        int count=0;
+        for (Pair<Course,Course> var : incompatible) {
+            if (var.fst() == c) count += 1;
+            if (var.snd() == c) count += 1;
+        }
+        return count;
+    }
+    private int countUnwanted(Course c){
+        int count = 0;
+        for (Entry<Course,Slot> var : unwanted.entrySet()) {
+            if (var.getKey() == c) count += 1;
+        }
+        return count;
+    }
+    private int countPreferences(Course c){
+        int count = 0;
+        for (Triple<Course, Slot, Integer> var : preferences) {
+            if (var.fst() == c) count += 1;
+        }
+        return count;
+    }
+    private int countTogether(Course c){
+        int count=0;
+        for (Pair<Course,Course> var : together) {
+            if (var.fst() == c) count += 1;
+            if (var.snd() == c) count += 1;
+        }
+        return count;
     }
 
     private String parseName(Queue<String> q) {
