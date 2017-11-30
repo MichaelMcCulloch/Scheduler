@@ -13,7 +13,7 @@ public class Schedule implements Comparable<Schedule> {
 
     private Map<Course, Slot> assignments;
     private Schedule parent;
-    private int depth, score;
+    private int depth, score, bound;
     private Map<Slot, Integer> counters;
 
 
@@ -47,7 +47,10 @@ public class Schedule implements Comparable<Schedule> {
         }
         this.parent = parent;
         this.depth = (parent == null) ? 0 : parent.depth + 1;
-        this.score = eval();
+        this.bound = evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
+                    + evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
+                    + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference);
+        this.score = bound + evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
     }
 
     private boolean insertElem(Course c, Slot s) {
@@ -78,16 +81,18 @@ public class Schedule implements Comparable<Schedule> {
         return (this.score < other.score);
     }
 
-    private int boundCheck() {
-    	return score-evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
+    private int getBound(){
+        return this.bound;
     }
     
+    /*
     private int eval() {
         return evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
                 + evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
                 + evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
                 + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference);
     }
+    */
 
     private int evalMinFilled() {
         int sum = 0;
@@ -172,7 +177,7 @@ public class Schedule implements Comparable<Schedule> {
                 try{
                     Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
                     
-                    boolean satisfactory = boundCheck.apply(next.boundCheck());
+                    boolean satisfactory = boundCheck.apply(next.getBound());
                     
                     if (next.solved()) checkBest.accept(next);
                     else if (satisfactory) n.add(next);

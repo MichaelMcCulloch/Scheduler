@@ -9,16 +9,9 @@
             "name": "Debug (Launch)-Main<AndTree_Search>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "Main",
-            "projectName": "AndTree_Search",
-            "args": ""
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-Parser<AndTree_Search>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "Parser",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "scheduler.Main",
             "projectName": "AndTree_Search",
             "args": ""
         },
