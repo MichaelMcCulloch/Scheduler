@@ -9,6 +9,7 @@ public class Lab implements Course {
 
 
     private List<Course> mutex = new ArrayList<>();
+    private List<Pair<Slot,Integer>> preference = new ArrayList<>();
 
     private String name;
     private int courseNum;
@@ -39,4 +40,12 @@ public class Lab implements Course {
     public int getSectNum() {
         return courseNum;
     }
+    
+	public void addPreference(Pair<Slot,Integer> pref) {
+		this.preference.add(pref);
+	}
+	
+	public List<Pair<Slot,Integer>> getPreference(){
+		return this.preference;
+	}
 }

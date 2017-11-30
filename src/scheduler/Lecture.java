@@ -10,6 +10,7 @@ public class Lecture implements Course {
     private List<Course> mutex = new ArrayList<>();
     private String name;
     private int courseNum;
+    private List<Pair<Slot,Integer>> preference = new ArrayList<>();
 
     public Lecture(String id){
         name = id;
@@ -61,4 +62,13 @@ public class Lecture implements Course {
 		this.name.substring(0,5).equals(section.toString().substring(0,5)));
 
     }
+
+	public void addPreference(Pair<Slot,Integer> pref) {
+		this.preference.add(pref);
+		
+	}
+	
+	public List<Pair<Slot,Integer>> getPreference(){
+		return this.preference;
+	}
 }

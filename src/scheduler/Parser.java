@@ -234,6 +234,7 @@ public class Parser {
             if (cs == null) continue;
             Integer value = Integer.parseInt(dtcpTuple[3]);
             prefs.add(new Triple<Course,Slot,Integer>(cs.fst(), cs.snd(), value));
+            cs.fst().addPreference(new Pair<Slot,Integer>(cs.snd(),value));
         }
         return prefs;
     }

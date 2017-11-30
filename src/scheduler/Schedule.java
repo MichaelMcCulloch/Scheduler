@@ -81,9 +81,6 @@ public class Schedule implements Comparable<Schedule> {
         return (this.score < other.score);
     }
 
-    public int getBound(){
-        return this.bound;
-    }
     
     /*
     private int eval() {
@@ -204,7 +201,11 @@ public class Schedule implements Comparable<Schedule> {
         return n;
     }
 
-    /**
+    public Integer getBound() {
+		return this.bound;
+	}
+
+	/**
      * Decide if this problem instance meets the hard constraints by checking the newly assigned slot
      */
     public boolean constr(Pair<Course, Slot> newAssignment) {

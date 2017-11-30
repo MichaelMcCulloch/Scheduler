@@ -17,4 +17,8 @@ public interface Course {
     public void addMutex(Course c);
 
     public int getSectNum();
+    
+    public void addPreference(Pair<Slot,Integer> pref);
+    
+    public List<Pair<Slot,Integer>> getPreference();
 }
