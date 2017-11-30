@@ -388,7 +388,14 @@ public class Schedule implements Comparable<Schedule> {
     	List<Pair<Course, Slot>> list = new ArrayList<>();
         for (Entry<Course, Slot> assign : this.assignments.entrySet()) {
 			list.add(new Pair<>(assign.getKey(), assign.getValue()));
-		}
+        }
+        
+        list.sort(new Comparator<Pair<Course,Slot>>() {
+            @Override
+            public int compare(Pair<Course, Slot> o1, Pair<Course, Slot> o2) {
+                return o1.fst().toString().compareTo(o2.fst().toString());
+            }
+        });
         
         String out = "Eval " + score + "\n";
         for (Pair<Course, Slot> pair : list) {
