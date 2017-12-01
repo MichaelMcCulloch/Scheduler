@@ -283,9 +283,7 @@ public class Schedule implements Comparable<Schedule> {
                 Slot conflictTimeSlot = assignments.get(conflict);
                 if (conflictTimeSlot != null) {
 	                if (conflict instanceof Lab) {
-	                    if (newAssignment.snd() == conflictTimeSlot) {
-	                        return false;
-	                    }
+	                	continue;
 	                }
 	                if (conflict instanceof Lecture && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
 	                    return false;
@@ -306,11 +304,8 @@ public class Schedule implements Comparable<Schedule> {
         String labDay = labTime.getDay();
         int laboratoryTime = labTime.getTime();
 
-        int labHour = laboratoryTime / 60;
-        int lectureHour = lecTime / 60;
-
         if (lecTime <= laboratoryTime){
-            if ((lectureDay == "MO" ||lectureDay == "FR") && (labDay == "MO" || labDay == "FR")) {
+            if ((lectureDay == "MO") && (labDay == "MO" || labDay == "FR")) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
             } else if (lectureDay == "TU" && labDay == lectureDay) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
@@ -318,7 +313,7 @@ public class Schedule implements Comparable<Schedule> {
         }
 
         if (laboratoryTime <= lecTime){
-            if ((lectureDay == "MO" ||lectureDay == "FR") && (labDay == "MO" || labDay == "FR")) {
+            if ((lectureDay == "MO") && (labDay == "MO" || labDay == "FR")) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
             } else if (lectureDay == "TU" && labDay == lectureDay) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
