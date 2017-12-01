@@ -7,7 +7,6 @@ import java.io.*;
  * Parser
  */
 public class Parser {
-
     private String name;
     private List<CourseSlot> courseSlots;
     private List<LabSlot> labSlots;
@@ -39,6 +38,9 @@ public class Parser {
         this.together = parseTogether(pending);
         this.partAssign = parsePartAssign(pending);
 
+        for (Course c : Model.getInstance().getCourses()) {
+			pairLabLec(c);
+		}
         
         specialCases();
         
@@ -80,6 +82,26 @@ public class Parser {
         }
         
     }
+    
+    private void pairLabLec(Course c) {
+    	//TODO: check for the courses being in the mutex list??
+        if (c instanceof Lecture) {
+        	Lecture d = (Lecture) c;
+        	for (Course b : Model.getInstance().getCourses()) {
+        		if (b instanceof Lab ) {
+        			Lab a = (Lab) b;
+        			if (a.getDept() == d.getDept() 
+        					&& a.getCourseNum() == d.getCourseNum()
+        					&& (a.getLecNum() == d.getLecNum() || a.getLecNum() == -1)){
+        				a.addMutex(d);
+        				d.addMutex(a);
+        			}
+        		}
+        	}
+        }
+    }
+    
+    
     private int countCompat(Course c){
         int count=0;
         for (Pair<Course,Course> var : incompatible) {

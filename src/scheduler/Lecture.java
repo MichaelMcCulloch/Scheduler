@@ -11,10 +11,14 @@ public class Lecture implements Course {
     private String name;
     private int courseNum;
     private List<Pair<Slot,Integer>> preference = new ArrayList<>();
-
+    private String dept;
+    private int lecNum;
     public Lecture(String id){
         name = id;
+        //TODO: parse with regex
         courseNum = Integer.parseInt(id.substring(4, 7));
+    	setDept(name.substring(0, 3));
+    	setLecNum(Integer.parseInt(name.substring(10,11)));
     }
     @Override
     public boolean byName(String name) {
@@ -71,5 +75,20 @@ public class Lecture implements Course {
 	
 	public List<Pair<Slot,Integer>> getPreference(){
 		return this.preference;
+	}
+	public String getDept() {
+		return dept;
+	}
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+	public int getLecNum() {
+		return lecNum;
+	}
+	public void setLecNum(int lecNum) {
+		this.lecNum = lecNum;
+	}
+	public int getCourseNum() {
+		return courseNum;
 	}
 }
