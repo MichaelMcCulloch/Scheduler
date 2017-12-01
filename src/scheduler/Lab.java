@@ -42,7 +42,9 @@ public class Lab implements Course {
     }
     
 	public void addPreference(Pair<Slot,Integer> pref) {
-		this.preference.add(pref);
+		int i=0;
+		while (i<this.preference.size() && pref.snd()>this.preference.get(i).snd()) i++;
+		this.preference.add(i,pref);
 	}
 	
 	public List<Pair<Slot,Integer>> getPreference(){

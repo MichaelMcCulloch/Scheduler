@@ -47,12 +47,31 @@ public class Schedule implements Comparable<Schedule> {
         }
         this.parent = parent;
         this.depth = (parent == null) ? 0 : parent.depth + 1;
-        this.bound = evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
+        this.score = evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
                     + evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
-                    + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference);
-        this.score = bound + evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
+                    + evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference)
+        			+ evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
+        this.bound = evalPair() * Model.getInstance().getWeights(Model.Weight.Paired)
+                	+ evalPref() * Model.getInstance().getWeights(Model.Weight.Preference)
+                	+ evalSecDiff() * Model.getInstance().getWeights(Model.Weight.SectionDifference)
+                	- evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
     }
 
+    
+    private int boundPref(){
+    	int prefBound=0;
+    	for (Entry<Course,Slot> var : assignments.entrySet()) {
+    		Course c = var.getKey();
+    		boolean flag = false;
+    		for(Pair<Slot,Integer> prefs : c.getPreference()) {
+    			Slot s = prefs.fst();
+    			if (counters.get(s)>=s.getMax() || flag) prefBound+= prefs.snd();
+    			else flag=true;
+    		}
+    	}
+    	return prefBound;
+    }
+    
     private boolean insertElem(Course c, Slot s) {
 
         Integer count = counters.get(s);
