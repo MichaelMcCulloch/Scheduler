@@ -398,16 +398,29 @@ public class Schedule implements Comparable<Schedule> {
      * @return
      */
     public String prettyPrint() {
-    	
-    	List<Pair<Course, Slot>> list = new ArrayList<>();
-        for (Entry<Course, Slot> assign : this.assignments.entrySet()) {
-			list.add(new Pair<>(assign.getKey(), assign.getValue()));
-		}
         
-        String out = score + "\n";
+        int maxPadding = 0;
+        List<Pair<Course, Slot>> list = new ArrayList<>();
+        for (Entry<Course, Slot> assign : this.assignments.entrySet()) {
+            list.add(new Pair<>(assign.getKey(), assign.getValue()));
+            if (assign.getKey().toString().length() > maxPadding)
+                maxPadding = assign.getKey().toString().length();
+        }
+        
+        list.sort(new Comparator<Pair<Course,Slot>>() {
+            @Override
+            public int compare(Pair<Course, Slot> o1, Pair<Course, Slot> o2) {
+                return o1.fst().toString().compareTo(o2.fst().toString());
+            }
+        });
+        
+        String out = "Eval " + score + "\n";
         for (Pair<Course, Slot> pair : list) {
-			out += pair.fst() + "\t" + pair.snd() + "\n";
-		}
+            String courseName = pair.fst().toString();
+            int paddingToAdd = maxPadding - courseName.length();
+            for (int i = 0; i < paddingToAdd; i++) courseName += " ";
+             out += courseName + "\t" + pair.snd() + "\n";
+         }
         
         return out;
     }

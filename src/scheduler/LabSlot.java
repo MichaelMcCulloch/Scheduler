@@ -46,8 +46,8 @@ public class LabSlot implements Slot {
     
     @Override
     public String toString() {
-    	// TODO Auto-generated method stub
-    	return "LAB@" +  day + ":" + time / 60 + ":" + time % 60;
+        // TODO Auto-generated method stub
+        return day + ", " + time / 60 + ":" + (time % 60 == 0 ? "00" : "30");
     }
 
     @Override
