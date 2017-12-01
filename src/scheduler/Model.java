@@ -49,9 +49,9 @@ public class Model {
                 wPair = 1;
 
     private int penCourseMin = 1,
-                penLabMin = 1, 
-                penSecDiff = 1,
-                penPair = 1;
+            penLabMin = 1, 
+            penSecDiff = 1,
+            penPair = 1;
                 
     protected Model(){
         //no direct instantiation
@@ -81,7 +81,8 @@ public class Model {
     					List<Triple<Course,Slot,Integer>> preferences, 
     					List<Pair<Course, Course>> together,
                         List<Pair<Course, Course>> incompatible,
-                        int[] weights) throws AlreadyInstantiated {
+                        int[] weights,
+                        int[] penalties) throws AlreadyInstantiated {
         if (isDataSet) throw new AlreadyInstantiated();
         isDataSet = true;
         
@@ -97,6 +98,10 @@ public class Model {
         this.wPref = weights[1];
         this.wSecDiff = weights[2];
         this.wPair = weights[3];
+        penCourseMin = penalties[0];
+        penLabMin = penalties[1];
+        penSecDiff = penalties[2];
+        penPair = penalties[3];
     }
 
     /**

@@ -28,6 +28,12 @@ public class Schedule implements Comparable<Schedule> {
 
     public Schedule(Schedule parent, final Map<Course, Slot> assignments) throws ConstraintsFailed {
         this(parent, assignments, null);
+        for (Slot entry : Model.getInstance().getCourseSlots()) {
+        	counters.put(entry, 0);
+        }
+        for (Slot entry : Model.getInstance().getLabSlots()) {
+        	counters.put(entry, 0);
+        }
     }
 
     public Schedule(Schedule parent, final Map<Course, Slot> assignments, Pair<Course, Slot> newAssignment) throws ConstraintsFailed{
@@ -35,6 +41,13 @@ public class Schedule implements Comparable<Schedule> {
         
         this.assignments = new HashMap<>();
         this.counters = new HashMap<>();
+        
+        for (Slot entry : Model.getInstance().getCourseSlots()) {
+        	counters.put(entry, 0);
+        }
+        for (Slot entry : Model.getInstance().getLabSlots()) {
+        	counters.put(entry, 0);
+        }
         for (Entry<Course, Slot> var : assignments.entrySet()) {
             Slot s = var.getValue();
             Course c = var.getKey();

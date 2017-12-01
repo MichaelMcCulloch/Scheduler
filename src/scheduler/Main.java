@@ -48,8 +48,12 @@ public class Main {
         int weightPref;
         int weightSectDiff;
         int weightTogether;
-        if (args.length < 5){
-            System.out.println("USAGE: input.txt wMinFilled wPref wSecDiff wPair" );
+        int penCourseMin;
+        int  penLabMin;
+        int penSecDiff;
+        int penPair;
+        if (args.length < 9){
+            System.out.println("USAGE: input.txt wMinFilled wPref wSecDiff wPair pen_coursemin pen_labmin pen_section pen_notpaired" );
             return;
         } else {
             filename = args[0];
@@ -57,12 +61,16 @@ public class Main {
             weightPref = Integer.parseInt(args[2]);
             weightSectDiff = Integer.parseInt(args[3]);
             weightTogether = Integer.parseInt(args[4]);
+            penCourseMin = Integer.parseInt(args[5]);
+            penLabMin = Integer.parseInt(args[6]);
+            penSecDiff = Integer.parseInt(args[7]);
+            penPair = Integer.parseInt(args[8]);;
         }
         File f;
         Parser p;
         try {
             f = new File(filename);
-            p = new Parser(f, weightMin, weightPref, weightSectDiff, weightTogether);
+            p = new Parser(f, weightMin, weightPref, weightSectDiff, weightTogether, penCourseMin, penLabMin, penSecDiff, penPair);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             return;

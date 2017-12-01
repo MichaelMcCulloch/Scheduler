@@ -18,9 +18,9 @@ public class Parser {
 
     private Schedule initialInstance;
 
-    public Parser(File f, int weightMin, int weightPref, int weightSectDiff, int weightTogether) throws FileNotFoundException {
+    public Parser(File f, int weightMin, int weightPref, int weightSectDiff, int weightTogether, int penCourseMin, int  penLabMin, int penSecDiff, int penPair) throws FileNotFoundException {
         int[] weights = {weightMin, weightPref, weightSectDiff, weightTogether};
-        
+        int[] penalties = {penCourseMin, penLabMin, penSecDiff, penPair};
         Scanner fileScanner = new Scanner(f);
         List<String> lines = new ArrayList<>();
         // Accumulate and remove spaces, set to uppercase
@@ -75,7 +75,7 @@ public class Parser {
         }
 
         Model m = Model.getInstance();
-        m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible, weights);
+        m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible, weights, penalties);
         
         try {
             initialInstance = new Schedule(null, partAssign);
