@@ -43,15 +43,26 @@ public class Main {
     public static void main(String[] args) {
         int poolSize = Runtime.getRuntime().availableProcessors();
         
+        String filename;   
+        int weightMin;
+        int weightPref;
+        int weightSectDiff;
+        int weightTogether;
+        if (args.length < 5){
+            System.out.println("USAGE: input.txt wMinFilled wPref wSecDiff wPair" );
+            return;
+        } else {
+            filename = args[0];
+            weightMin = Integer.parseInt(args[1]);
+            weightPref = Integer.parseInt(args[2]);
+            weightSectDiff = Integer.parseInt(args[3]);
+            weightTogether = Integer.parseInt(args[4]);
+        }
         File f;
         Parser p;
         try {
-            Scanner user = new Scanner(System.in);
-            System.out.println("Point me to the input file:");
-            String filename = user.nextLine();
-            user.close();
             f = new File(filename);
-            p = new Parser(f);
+            p = new Parser(f, weightMin, weightPref, weightSectDiff, weightTogether);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             return;
@@ -71,22 +82,26 @@ public class Main {
             searchers[i] = new Searcher(workQueues[i]);
             pool.execute(searchers[i]);
         }
-
-        //TODO: replace this with termination condition
         
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            //TODO: handle exception
-        }
-        
-        
-        Searcher.stop();
         pool.shutdown();
+        Scanner user = new Scanner(System.in);
+        System.out.println("Enter \"quit\" to quit");
+        try{
+            Thread.sleep(1000);
+        } catch (Exception e) {}
+        while( !pool.isTerminated() && !user.hasNextLine()){
+            if (user.hasNextLine()){
+                if (user.nextLine().equals("quit")){
+                    searchers[0].stop();
+                }
+            }
+        };
+        
         
         Schedule best = Model.getInstance().getBest();
         
         System.out.println(best.prettyPrint());
+        
         /**
          * TODO: Printout Model.best;
          */

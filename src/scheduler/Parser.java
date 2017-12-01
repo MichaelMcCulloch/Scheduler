@@ -18,8 +18,10 @@ public class Parser {
 
     private Schedule initialInstance;
 
-    public Parser(File f) throws FileNotFoundException {
-    	Scanner fileScanner = new Scanner(f);
+    public Parser(File f, int weightMin, int weightPref, int weightSectDiff, int weightTogether) throws FileNotFoundException {
+        int[] weights = {weightMin, weightPref, weightSectDiff, weightTogether};
+        
+        Scanner fileScanner = new Scanner(f);
         List<String> lines = new ArrayList<>();
         // Accumulate and remove spaces, set to uppercase
         while (fileScanner.hasNextLine()) {
@@ -73,7 +75,7 @@ public class Parser {
         }
 
         Model m = Model.getInstance();
-        m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible);
+        m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible, weights);
         
         try {
             initialInstance = new Schedule(null, partAssign);

@@ -80,7 +80,8 @@ public class Model {
     					Map<Course,Slot> unwanted, 
     					List<Triple<Course,Slot,Integer>> preferences, 
     					List<Pair<Course, Course>> together,
-    					List<Pair<Course, Course>> incompatible) throws AlreadyInstantiated {
+                        List<Pair<Course, Course>> incompatible,
+                        int[] weights) throws AlreadyInstantiated {
         if (isDataSet) throw new AlreadyInstantiated();
         isDataSet = true;
         
@@ -92,6 +93,10 @@ public class Model {
         this.preferences = preferences;
         this.together = together;
         this.incompatible = incompatible;
+        this.wMinFilled = weights[0];
+        this.wPref = weights[1];
+        this.wSecDiff = weights[2];
+        this.wPair = weights[3];
     }
 
     /**

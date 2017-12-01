@@ -13,7 +13,7 @@
             "stopOnEntry": false,
             "mainClass": "scheduler.Main",
             "projectName": "AndTree_Search",
-            "args": ""
+            "args": "deptinst2.txt 1 1 1 1"
         },
         {
             "type": "java",
