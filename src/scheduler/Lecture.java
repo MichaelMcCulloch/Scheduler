@@ -17,8 +17,8 @@ public class Lecture implements Course {
         name = id;
         //TODO: parse with regex
         courseNum = Integer.parseInt(id.substring(4, 7));
-    	setDept(name.substring(0, 3));
-    	setLecNum(Integer.parseInt(name.substring(10,11)));
+    	setDept(name.substring(0, 4));
+    	setLecNum(Integer.parseInt(name.substring(10,12)));
     }
     @Override
     public boolean byName(String name) {

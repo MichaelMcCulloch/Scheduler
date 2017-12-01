@@ -21,13 +21,12 @@ public class Lab implements Course {
         //Assume course id is 4 characters, course num is 3, no spaces
         courseNum = Integer.parseInt(id.substring(4, 7));
         if (name.length()>14) {
-        	setDept(name.substring(0, 3));
-        	setLecNum(Integer.parseInt(name.substring(10,11)));
+        	setLecNum(Integer.parseInt(name.substring(10,12)));
         }
         else {
-        	dept = null;
         	lecNum = -1;
         }
+    	setDept(name.substring(0, 4));
     }
     @Override
     public boolean byName(String name) {
