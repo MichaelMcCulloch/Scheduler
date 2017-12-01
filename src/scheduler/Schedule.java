@@ -261,21 +261,23 @@ public class Schedule implements Comparable<Schedule> {
 	                }
 	                if (conflict instanceof Lab && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
 	                    return false;
-                }
+	                }
                 }
             }
 
         } else if (c instanceof Lab) {
             for (Course conflict : c.getMutex()) {
                 Slot conflictTimeSlot = assignments.get(conflict);
-                if (conflict instanceof Lab) {
-                    if (newAssignment.snd() == conflictTimeSlot) {
-                        return false;
-                    }
-                }
-                if (conflict instanceof Lecture && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
-                    return false;
-                }
+                if (conflictTimeSlot != null) {
+	                if (conflict instanceof Lab) {
+	                    if (newAssignment.snd() == conflictTimeSlot) {
+	                        return false;
+	                    }
+	                }
+	                if (conflict instanceof Lecture && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
+	                    return false;
+	                }
+	            }
             }
         }
         return true;

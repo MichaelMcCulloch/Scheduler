@@ -38,7 +38,7 @@ public class Parser {
         this.together = parseTogether(pending);
         this.partAssign = parsePartAssign(pending);
 
-        for (Course c : Model.getInstance().getCourses()) {
+        for (Course c : courseList) {
 			pairLabLec(c);
 		}
         
@@ -87,7 +87,7 @@ public class Parser {
     	//TODO: check for the courses being in the mutex list??
         if (c instanceof Lecture) {
         	Lecture d = (Lecture) c;
-        	for (Course b : Model.getInstance().getCourses()) {
+        	for (Course b : labList) {
         		if (b instanceof Lab ) {
         			Lab a = (Lab) b;
         			if (a.getDept() == d.getDept() 

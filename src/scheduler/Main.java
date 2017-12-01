@@ -75,7 +75,7 @@ public class Main {
         //TODO: replace this with termination condition
         
         try {
-            Thread.sleep(60000);
+            Thread.sleep(5000);
         } catch (Exception e) {
             //TODO: handle exception
         }
