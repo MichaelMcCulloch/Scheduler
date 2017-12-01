@@ -22,7 +22,7 @@ public class Main {
 	            startingNodes.addAll(A.div(Model.getInstance().checkBest, Model.getInstance().checkBound));
 	        }
         } catch (NoSuchElementException e) {
-        	System.out.println("oh noes!");
+        	
         }
 
         
@@ -107,9 +107,8 @@ public class Main {
         
         
         Schedule best = Model.getInstance().getBest();
-        
-        System.out.println(best.prettyPrint());
-        
+        if (best==null) System.out.println("No schedule found!");
+        else System.out.println(best.prettyPrint());
         /**
          * TODO: Printout Model.best;
          */

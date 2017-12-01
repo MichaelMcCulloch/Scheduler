@@ -55,8 +55,8 @@ public class Schedule implements Comparable<Schedule> {
         }
         //add the new node
         if (newAssignment != null) {
-            if (!constr(newAssignment)) throw new ConstraintsFailed();
             insertElem(newAssignment.fst(), newAssignment.snd());
+            if (!constr(newAssignment)) throw new ConstraintsFailed();
         }
         this.parent = parent;
         this.depth = (parent == null) ? 0 : parent.depth + 1;
@@ -239,6 +239,9 @@ public class Schedule implements Comparable<Schedule> {
         Slot s = newAssignment.snd();
         
         if (s instanceof CourseSlot) {
+        	//System.out.println(s);
+        	//System.out.println(s.getMax());
+        	//System.out.println(counters.get(s));
             Integer courseCounter = counters.get(s);
             if (courseCounter!=null){
 	            if (courseCounter > s.getMax()) {
@@ -261,19 +264,20 @@ public class Schedule implements Comparable<Schedule> {
     */
     public boolean constrCourseConflict(Pair<Course, Slot> newAssignment) {
 
-        Course c = newAssignment.fst();
-
+        Course c = newAssignment.fst();        
         if (c instanceof Lecture) {
             for (Course conflict : c.getMutex()) {
                 Slot conflictTimeSlot = assignments.get(conflict);
                 if (conflictTimeSlot != null) {
 	                if (conflict instanceof Lecture) {
 	                    if (newAssignment.snd() == conflictTimeSlot) {
-	                        return false;
+	                    	return false;
 	                    }
 	                }
-	                if (conflict instanceof Lab && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
-	                    return false;
+	                if (conflict instanceof Lab) {
+	                	if(hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
+	                		return false;
+	                	}
 	                }
                 }
             }
@@ -285,12 +289,16 @@ public class Schedule implements Comparable<Schedule> {
 	                if (conflict instanceof Lab) {
 	                	continue;
 	                }
-	                if (conflict instanceof Lecture && hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
-	                    return false;
+	                if (conflict instanceof Lecture) {
+	                	if(hasOverlap(newAssignment.snd(), conflictTimeSlot)) {
+	                		return false;
+	                	}
 	                }
 	            }
             }
         }
+        
+        
         return true;
     }
 
@@ -305,17 +313,17 @@ public class Schedule implements Comparable<Schedule> {
         int laboratoryTime = labTime.getTime();
 
         if (lecTime <= laboratoryTime){
-            if ((lectureDay == "MO") && (labDay == "MO" || labDay == "FR")) {
+            if ((lectureDay.equals("MO")) && (labDay.equals("MO") || labDay.equals("FR"))) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
-            } else if (lectureDay == "TU" && labDay == lectureDay) {
+            } else if (lectureDay.equals("TU") && labDay.equals(lectureDay)) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
             }
         }
 
         if (laboratoryTime <= lecTime){
-            if ((lectureDay == "MO") && (labDay == "MO" || labDay == "FR")) {
+            if (lectureDay.equals("MO") && (labDay.equals("MO") || labDay.equals("FR"))) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
-            } else if (lectureDay == "TU" && labDay == lectureDay) {
+            } else if (lectureDay.equals("TU") && labDay.equals(lectureDay)) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
             }
         }
@@ -328,10 +336,12 @@ public class Schedule implements Comparable<Schedule> {
     public boolean constrUnwanted(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
-        Slot badSlot = Model.getInstance().getUnwanted().get(c);
+        List<Slot> badSlot = Model.getInstance().getUnwanted().get(c);
         if (badSlot == null) return true;
-        else if (badSlot == newAssignment.snd()) return false;
-        else return true;
+        for (Slot slot : badSlot) {
+        	if (slot == newAssignment.snd()) return false;	
+		}
+        return true;
     }
 
     /**
@@ -360,11 +370,11 @@ public class Schedule implements Comparable<Schedule> {
 
         Course c = newAssignment.fst();
 
-        if (c instanceof Lecture && (newAssignment.snd()).byDayTime("Tue", "11:00")) {
+        if (c instanceof Lecture && (newAssignment.snd()).byDayTime("TU", "11:00")) {
             return false;
         } else if (c instanceof Lab) {
             Slot labTime = newAssignment.snd();
-            if (labTime.byDayTime("Tue", "11:00") || labTime.byDayTime("Tue", "12:00")) {
+            if (labTime.byDayTime("TU", "11:00") || labTime.byDayTime("TU", "12:00")) {
                 return false;
             }
         } 

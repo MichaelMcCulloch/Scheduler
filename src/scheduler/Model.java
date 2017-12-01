@@ -20,7 +20,7 @@ public class Model {
     private List<CourseSlot> courseSlots;
     private List<Course> allCourses;
 
-    private Map<Course, Slot> unwanted;
+    private Map<Course, List<Slot>> unwanted;
     private List<Triple<Course, Slot, Integer>> preferences;
     private List<Pair<Course, Course>> together, incompatible;
     
@@ -77,7 +77,7 @@ public class Model {
     public void setData(List<Course> allCourses, 
     					List<LabSlot> labSlots,
     					List<CourseSlot> courseSlots,
-    					Map<Course,Slot> unwanted, 
+    					Map<Course,List<Slot>> unwanted, 
     					List<Triple<Course,Slot,Integer>> preferences, 
     					List<Pair<Course, Course>> together,
                         List<Pair<Course, Course>> incompatible,
@@ -151,7 +151,7 @@ public class Model {
         return incompatible;
     }
 
-    public Map<Course,Slot> getUnwanted(){
+    public Map<Course,List<Slot>> getUnwanted(){
         return unwanted;
     }
 

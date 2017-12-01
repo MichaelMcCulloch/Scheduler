@@ -12,7 +12,8 @@ public class Parser {
     private List<LabSlot> labSlots;
     private List<Lecture> courseList;
     private List<Lab> labList;
-    private Map<Course, Slot> unwanted, partAssign;
+    private Map<Course, List<Slot>> unwanted; 
+    private Map<Course, Slot> partAssign;
     private List<Triple<Course, Slot, Integer>> preferences;
     private List<Pair<Course, Course>> together, incompatible;
 
@@ -92,11 +93,14 @@ public class Parser {
         	for (Course b : labList) {
         		if (b instanceof Lab ) {
         			Lab a = (Lab) b;
-        			if (a.getDept() == d.getDept() 
-        					&& a.getCourseNum() == d.getCourseNum()
-        					&& (a.getLecNum() == d.getLecNum() || a.getLecNum() == -1)){
-        				a.addMutex(d);
-        				d.addMutex(a);
+        			if (a.getDept().equals(d.getDept())) { 
+        					if(a.getCourseNum() == d.getCourseNum()) {
+        						if (a.getLecNum() == d.getLecNum() || a.getLecNum() == -1){
+        							d.addMutex(a);
+        							a.addMutex(d);
+        						}
+        					}
+ 
         			}
         		}
         	}
@@ -114,8 +118,8 @@ public class Parser {
     }
     private int countUnwanted(Course c){
         int count = 0;
-        for (Entry<Course,Slot> var : unwanted.entrySet()) {
-            if (var.getKey() == c) count += 1;
+        for (Entry<Course,List<Slot>> var : unwanted.entrySet()) {
+            if (var.getKey() == c) count += var.getValue().size();
         }
         return count;
     }
@@ -217,16 +221,22 @@ public class Parser {
         return pairs;
     }
 
-    private Map<Course,Slot> parseUnwanted(Queue<String> q) {
+    private Map<Course,List<Slot>> parseUnwanted(Queue<String> q) {
         while (!q.remove().equals("UNWANTED:"));
-        Map<Course,Slot> nope = new HashMap<>();
+        Map<Course,List<Slot>> nope = new HashMap<>();
+        List<Slot> slots = new ArrayList<>();
         while (!q.peek().equals("")) {
-            String next = q.remove();
-            String[] cdtTuple = next.split(",");
-            Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
-            if (cs == null) continue;
-            nope.put(cs.fst(), cs.snd());
+        	String next = q.remove();
+        	String[] cdtTuple = next.split(",");
+        	Pair<Course,Slot> cs = getCourseSlotPair(cdtTuple[0],  cdtTuple[1], cdtTuple[2]);
+        	List<Slot> notWantedIn = nope.get(cs.fst());
+        	if (notWantedIn == null) {
+        		notWantedIn = new ArrayList<>();
+        	}
+        	notWantedIn.add(cs.snd());
+        	nope.put(cs.fst(), notWantedIn);
         }
+        
         return nope;
     }
 
@@ -280,7 +290,7 @@ public class Parser {
                     if (s != null) {
                         partAssign.put(q813, s);
                     } else {
-                        System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
+                        System.out.println("Schedule Not Found!");
                         System.exit(0); //does this actually exit?
                     }                   
                 }
@@ -297,7 +307,7 @@ public class Parser {
                     if (s != null) {
                         partAssign.put(q913, s);
                     } else {
-                        System.out.println("Error: No TU 18:00 slot exists for " + var.toString());
+                        System.out.println("Schedule Not Found!");
                         System.exit(0); //Does this actually exit?
                     }                   
                 }
