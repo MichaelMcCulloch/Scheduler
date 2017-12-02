@@ -92,15 +92,10 @@ public class Main {
         pool.shutdown();
         Scanner user = new Scanner(System.in);
         System.out.println("Enter \"quit\" to quit");
-        try{
-            Thread.sleep(1000);
-        } catch (Exception e) {}
-        while( !pool.isTerminated() && !user.hasNextLine()){
-            if (user.hasNextLine()){
+        while(!user.hasNextLine()){
                 if (user.nextLine().equals("quit")){
-                    searchers[0].stop();
+                    Searcher.stop();
                 }
-            }
         };
         
         
