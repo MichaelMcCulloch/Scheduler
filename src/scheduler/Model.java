@@ -114,20 +114,8 @@ public class Model {
         }
     };
     
-    public Function<Integer, Boolean> checkBound = new Function<Integer, Boolean>() {
-    	public Boolean apply(Integer i) {
-    		Boolean ret = false;
-    		boundLock.lock();
-    		if (bound == null || bound >= i) {
-    			ret = true;
-    		}
-    		boundLock.unlock();
-    		return ret;
-    	}
-    };
-    
     public Integer getBound() {
-    	return (Integer)bound;
+    	return bound;
     }
     
     public void setBound(int i) {
@@ -187,6 +175,7 @@ public class Model {
     private synchronized void checkBest(Schedule sched){
         if (bestNode == null || sched.betterThan(bestNode)) {
             bestNode = sched;
+            bound = sched.getScore();
         }
     }
     public synchronized Schedule getBest() {

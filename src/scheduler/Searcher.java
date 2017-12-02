@@ -38,7 +38,7 @@ public class Searcher implements Runnable {
             try {
                 Schedule next = workQueue.remove();
                 if (bound == null || next.getBound() <= bound) {
-                    List<Schedule> children = next.div(checkBest, checkBound);
+                    List<Schedule> children = next.div(checkBest, bound);
                     if (children.isEmpty()) continue;
                     workQueue.addAll(children);
                 }
@@ -50,21 +50,12 @@ public class Searcher implements Runnable {
         System.out.println("Shutting down: " + workQueue.size());
     }
 
-    Function<Integer, Boolean> checkBound = new Function<Integer, Boolean>() {
-        public Boolean apply(Integer i) {
-            if (bound == null || i <= bound) {
-                bound = i;
-                model.checkBound.apply(i);
-                return true;
-            }
-            return false;
-        }
-    };
     //passing a function as a parameter
     Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched) {
             if (best == null || sched.betterThan(best)) {
                 best = sched;
+                bound = sched.getScore();
                 model.checkBest.accept(sched);
             }
         }

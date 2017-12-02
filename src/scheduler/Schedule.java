@@ -98,6 +98,10 @@ public class Schedule implements Comparable<Schedule> {
         return this.bound;
     }
     
+    public int getScore() {
+    	return this.score;
+    }
+    
     /*
     private int eval() {
         return evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled)
@@ -166,7 +170,7 @@ public class Schedule implements Comparable<Schedule> {
      * Accepting a function like a parameter
      * runs completion of caller (from main, checks global best; from searcher, checks local best)
      */
-    public List<Schedule> div(Consumer<Schedule> checkBest, Function<Integer, Boolean> boundCheck) {
+    public List<Schedule> div(Consumer<Schedule> checkBest, Integer bound) {
         List<Schedule> n = new ArrayList<>();
 
         //find a class not used in the current assignment
@@ -189,31 +193,12 @@ public class Schedule implements Comparable<Schedule> {
             for (Slot s : slots) {
                 try{
                     Schedule next = new Schedule(this, assignments, new Pair<Course, Slot>(assign, s));
-                    
-                    boolean satisfactory = boundCheck.apply(next.getBound());
-                    
+                    boolean satisfactory = (bound == null || this.bound <= bound);
                     if (next.solved()) checkBest.accept(next);
                     else if (satisfactory) n.add(next);
-                } catch (Schedule.ConstraintsFailed e) {
-                    //new assignment did not meet constraints.
-                }
+                } catch (Schedule.ConstraintsFailed e) {}
             }
-        } else {
-            //If you get here, you have just called div on a solved node. Why. 
-            //System.out.println("Error, This node is already solved");
-            //System.out.println(this);
-
         }
-
-        /**
-         * Filter out nodes which violate the hard constraints and which are solved, 
-         * and check if they are the best in a calling thread
-         * TODO: Want to be checking for constaints and solvedness in the insertElem()/the constructor
-         */
-
-        //List<Schedule> unsolvedNodes = new ArrayList<>();
-
-        
         return n;
     }
 
@@ -391,9 +376,6 @@ public class Schedule implements Comparable<Schedule> {
         for (Course c : Model.getInstance().getCourses()) {
         	if (assignments.get(c) == null) return false;
 		}
-        if (Model.getInstance().getBound() == null || Model.getInstance().getBound() >= score) { 
-        	Model.getInstance().setBound(score);
-        }
         return true;
     }
 
