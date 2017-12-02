@@ -19,9 +19,7 @@ public class Parser {
 
     private Schedule initialInstance;
 
-    public Parser(File f, int weightMin, int weightPref, int weightSectDiff, int weightTogether, int penCourseMin, int  penLabMin, int penSecDiff, int penPair) throws FileNotFoundException {
-        int[] weights = {weightMin, weightPref, weightSectDiff, weightTogether};
-        int[] penalties = {penCourseMin, penLabMin, penSecDiff, penPair};
+    public Parser(File f, Map<Model.Weight, Integer> weights, Map<Model.Penalty, Integer> penalties) throws FileNotFoundException {
         Scanner fileScanner = new Scanner(f);
         List<String> lines = new ArrayList<>();
         // Accumulate and remove spaces, set to uppercase

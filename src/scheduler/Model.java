@@ -80,8 +80,8 @@ public class Model {
     					List<Triple<Course,Slot,Integer>> preferences, 
     					List<Pair<Course, Course>> together,
                         List<Pair<Course, Course>> incompatible,
-                        int[] weights,
-                        int[] penalties) throws AlreadyInstantiated {
+                        Map<Weight, Integer> weights,
+                        Map<Penalty, Integer> penalties) throws AlreadyInstantiated {
         if (isDataSet) throw new AlreadyInstantiated();
         isDataSet = true;
         
@@ -93,14 +93,16 @@ public class Model {
         this.preferences = preferences;
         this.together = together;
         this.incompatible = incompatible;
-        this.wMinFilled = weights[0];
-        this.wPref = weights[1];
-        this.wSecDiff = weights[2];
-        this.wPair = weights[3];
-        penCourseMin = penalties[0];
-        penLabMin = penalties[1];
-        penSecDiff = penalties[2];
-        penPair = penalties[3];
+
+        this.wMinFilled = weights.get(Weight.MinFilled);
+        this.wPref = weights.get(Weight.Preference);
+        this.wSecDiff = weights.get(Weight.SectionDifference);
+        this.wPair = weights.get(Weight.Paired);
+        
+        this.penCourseMin = penalties.get(Penalty.CourseMin);
+        this.penLabMin = penalties.get(Penalty.LabMin);
+        this.penSecDiff = penalties.get(Penalty.SectionDifference);
+        this.penPair = penalties.get(Penalty.Pair);
     }
 
     /**

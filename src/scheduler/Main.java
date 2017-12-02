@@ -3,6 +3,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import scheduler.Model.Penalty;
+import scheduler.Model.Weight;
+
 /**
  * Maintest
  */
@@ -42,34 +45,30 @@ public class Main {
     public static void main(String[] args) {
         int poolSize = Runtime.getRuntime().availableProcessors();
         
-        String filename;   
-        int weightMin;
-        int weightPref;
-        int weightSectDiff;
-        int weightTogether;
-        int penCourseMin;
-        int  penLabMin;
-        int penSecDiff;
-        int penPair;
+        String filename;
+        Map<Model.Weight, Integer> weights = new HashMap<>();
+        Map<Model.Penalty,Integer> penalties = new HashMap<>();
         if (args.length < 9){
             System.out.println("USAGE: input.txt wMinFilled wPref wSecDiff wPair pen_coursemin pen_labmin pen_section pen_notpaired" );
             return;
         } else {
             filename = args[0];
-            weightMin = Integer.parseInt(args[1]);
-            weightPref = Integer.parseInt(args[2]);
-            weightSectDiff = Integer.parseInt(args[3]);
-            weightTogether = Integer.parseInt(args[4]);
-            penCourseMin = Integer.parseInt(args[5]);
-            penLabMin = Integer.parseInt(args[6]);
-            penSecDiff = Integer.parseInt(args[7]);
-            penPair = Integer.parseInt(args[8]);;
+            
+            weights.put(Weight.MinFilled, Integer.parseInt(args[1]));
+            weights.put(Weight.Preference, Integer.parseInt(args[2]));
+            weights.put(Weight.SectionDifference, Integer.parseInt(args[3]));
+            weights.put(Weight.Paired, Integer.parseInt(args[4]));
+
+            penalties.put(Penalty.CourseMin, Integer.parseInt(args[5]));
+            penalties.put(Penalty.LabMin, Integer.parseInt(args[6]));
+            penalties.put(Penalty.SectionDifference, Integer.parseInt(args[7]));
+            penalties.put(Penalty.Pair, Integer.parseInt(args[8]));
         }
         File f;
         Parser p;
         try {
             f = new File(filename);
-            p = new Parser(f, weightMin, weightPref, weightSectDiff, weightTogether, penCourseMin, penLabMin, penSecDiff, penPair);
+            p = new Parser(f, weights, penalties);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             return;
