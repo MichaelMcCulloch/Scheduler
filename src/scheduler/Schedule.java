@@ -392,7 +392,7 @@ public class Schedule implements Comparable<Schedule> {
         	if (assignments.get(c) == null) return false;
 		}
         if (Model.getInstance().getBound() == null || Model.getInstance().getBound() >= bound) { 
-        	Model.getInstance().setBound(bound);
+        	Model.getInstance().setBound(score);
         }
         return true;
     }
