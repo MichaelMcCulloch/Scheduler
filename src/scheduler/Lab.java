@@ -1,6 +1,4 @@
 package scheduler;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Lab implements Course

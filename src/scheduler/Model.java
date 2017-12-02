@@ -2,7 +2,6 @@ package scheduler;
 import java.util.*;
 import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Responsible for the creation of threads. Since all the peices of the tree exist here in the queue, this might as well be the model
