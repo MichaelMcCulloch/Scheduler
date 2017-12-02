@@ -289,23 +289,23 @@ public class Schedule implements Comparable<Schedule> {
     * Does not work for lab-lab conflicts
     */
     public boolean hasOverlap(Slot lectureTime, Slot labTime) {
-        String lectureDay = lectureTime.getDay();
+        Slot.Day lectureDay = lectureTime.getDay();
         int lecTime = lectureTime.getTime();
-        String labDay = labTime.getDay();
+        Slot.Day labDay = labTime.getDay();
         int laboratoryTime = labTime.getTime();
 
         if (lecTime <= laboratoryTime){
-            if ((lectureDay.equals("MO")) && (labDay.equals("MO") || labDay.equals("FR"))) {
+            if ((lectureDay == Slot.Day.Monday) && (labDay == Slot.Day.Monday || labDay == Slot.Day.Friday)) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
-            } else if (lectureDay.equals("TU") && labDay.equals(lectureDay)) {
+            } else if (lectureDay == Slot.Day.Tuesday && labDay.equals(lectureDay)) {
                 if (lecTime + lectureTime.getDuration() > laboratoryTime) return true;
             }
         }
 
         if (laboratoryTime <= lecTime){
-            if (lectureDay.equals("MO") && (labDay.equals("MO") || labDay.equals("FR"))) {
+            if (lectureDay == Slot.Day.Monday && (labDay == Slot.Day.Monday || labDay == Slot.Day.Friday)) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
-            } else if (lectureDay.equals("TU") && labDay.equals(lectureDay)) {
+            } else if (lectureDay == Slot.Day.Tuesday && labDay.equals(lectureDay)) {
                 if (laboratoryTime + labTime.getDuration() > lecTime) return true;
             }
         }
@@ -351,12 +351,12 @@ public class Schedule implements Comparable<Schedule> {
     public boolean constrTue11(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
-
-        if (c instanceof Lecture && (newAssignment.snd()).byDayTime("TU", "11:00")) {
+        int eleven = 11*60, twelve = 12*60;
+        if (c instanceof Lecture && (newAssignment.snd()).byDayTime(Slot.Day.Tuesday, eleven)) {
             return false;
         } else if (c instanceof Lab) {
             Slot labTime = newAssignment.snd();
-            if (labTime.byDayTime("TU", "11:00") || labTime.byDayTime("TU", "12:00")) {
+            if (labTime.byDayTime(Slot.Day.Tuesday, eleven) || labTime.byDayTime(Slot.Day.Tuesday, twelve)) {
                 return false;
             }
         } 

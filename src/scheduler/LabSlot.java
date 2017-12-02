@@ -9,11 +9,11 @@ public class LabSlot extends Slot {
         super(input);
 
         switch (day) {
-            case "MO":
-            case "TU":
+            case Monday:
+            case Tuesday:
                 duration = 50;
                 break;
-            case "FR": 
+            case Friday: 
                 duration = 110;
                 break;
             default:

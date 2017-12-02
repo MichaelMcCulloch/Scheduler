@@ -9,10 +9,10 @@ public class CourseSlot extends Slot {
         super(input);
 
         switch (day) {
-        case "MO":
+        case Monday:
             duration = 50;
             break;
-        case "TU":
+        case Tuesday:
             duration = 75;
             break;
         default:
