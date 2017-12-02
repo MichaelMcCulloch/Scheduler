@@ -391,6 +391,9 @@ public class Schedule implements Comparable<Schedule> {
         for (Course c : Model.getInstance().getCourses()) {
         	if (assignments.get(c) == null) return false;
 		}
+        if (Model.getInstance().getBound() == null || Model.getInstance().getBound() >= bound) { 
+        	Model.getInstance().setBound(bound);
+        }
         return true;
     }
 

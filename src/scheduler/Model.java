@@ -119,13 +119,22 @@ public class Model {
     		Boolean ret = false;
     		boundLock.lock();
     		if (bound == null || bound >= i) {
-    			bound = i;
     			ret = true;
     		}
     		boundLock.unlock();
     		return ret;
     	}
     };
+    
+    public Integer getBound() {
+    	return (Integer)bound;
+    }
+    
+    public void setBound(int i) {
+    	boundLock.lock();
+    	bound = i;
+    	boundLock.unlock();
+    }
 
 
     public List<Course> getCourses(){
