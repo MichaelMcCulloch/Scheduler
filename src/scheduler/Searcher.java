@@ -14,13 +14,11 @@ public class Searcher implements Runnable {
 
     private PriorityQueue<Schedule> workQueue;
     private static volatile boolean shutdownSignal = false;
-    private Schedule best; //complete schedules only
-    private Integer bound;
-    private Model model;
+    public static volatile Schedule best; //complete schedules only
+    public static volatile Integer bound;
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
-        this.model = Model.getInstance();
     }
 
     public static void stop() {
@@ -52,12 +50,15 @@ public class Searcher implements Runnable {
     //passing a function as a parameter
     Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched) {
-            if (best == null || sched.betterThan(best)) {
-                best = sched;
-                bound = sched.getScore();
-                model.checkBest.accept(sched);
-            }
+            checkBest(sched);
         }
     };
+
+    public synchronized void checkBest(Schedule sched){
+        if (best == null || sched.betterThan(best)) {
+            best = sched;
+            bound = sched.getScore();
+        }
+    }
 
 }

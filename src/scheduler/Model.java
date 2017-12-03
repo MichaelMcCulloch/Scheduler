@@ -1,20 +1,11 @@
 package scheduler;
 import java.util.*;
-import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
 
-/**
- * Responsible for the creation of threads. Since all the peices of the tree exist here in the queue, this might as well be the model
- */
 
 public class Model {
-
-    //This all needs to change. Maybe the parser should instantiate this? Maybe we don't use it at all
-
     private static volatile Model instance = null;
-    private boolean isDataSet = false;
-    
-    private String name;
+
     private List<LabSlot> labSlots;
     private List<CourseSlot> courseSlots;
     private List<Course> allCourses;
@@ -22,11 +13,6 @@ public class Model {
     private Map<Course, List<Slot>> unwanted;
     private List<Triple<Course, Slot, Integer>> preferences;
     private List<Pair<Course, Course>> together, incompatible;
-    
-    private volatile Schedule bestNode = null;
-    private volatile Integer bound = null;
-
-    private volatile Lock boundLock = new ReentrantLock(true);
 
     public enum Weight{
         MinFilled,
@@ -42,15 +28,8 @@ public class Model {
         Pair
     }
 
-    private int wMinFilled = 1, 
-                wPref = 1, 
-                wSecDiff = 1, 
-                wPair = 1;
-
-    private int penCourseMin = 1,
-            penLabMin = 1, 
-            penSecDiff = 1,
-            penPair = 1;
+    private Map<Weight, Integer> weights;
+    private Map<Penalty, Integer> penalties;
                 
     protected Model(){
         //no direct instantiation
@@ -62,13 +41,6 @@ public class Model {
         }
         return instance;
     }
-    
-    public class AlreadyInstantiated extends Error{
-        public AlreadyInstantiated(){
-            super();
-        }
-    }
-
 
     /**
      * Concurrency bug: Call this only from parser
@@ -81,9 +53,8 @@ public class Model {
     					List<Pair<Course, Course>> together,
                         List<Pair<Course, Course>> incompatible,
                         Map<Weight, Integer> weights,
-                        Map<Penalty, Integer> penalties) throws AlreadyInstantiated {
-        if (isDataSet) throw new AlreadyInstantiated();
-        isDataSet = true;
+                        Map<Penalty, Integer> penalties) {
+
         
         //set the courses
         this.allCourses = allCourses;
@@ -94,93 +65,43 @@ public class Model {
         this.together = together;
         this.incompatible = incompatible;
 
-        this.wMinFilled = weights.get(Weight.MinFilled);
-        this.wPref = weights.get(Weight.Preference);
-        this.wSecDiff = weights.get(Weight.SectionDifference);
-        this.wPair = weights.get(Weight.Paired);
-        
-        this.penCourseMin = penalties.get(Penalty.CourseMin);
-        this.penLabMin = penalties.get(Penalty.LabMin);
-        this.penSecDiff = penalties.get(Penalty.SectionDifference);
-        this.penPair = penalties.get(Penalty.Pair);
+        this.weights = weights;
+        this.penalties = penalties;
     }
 
-    /**
-     * Picks the best node based on its score only. not depths
-     */
-    
     public Consumer<Schedule> checkBest = new Consumer<Schedule>() {
         public void accept(Schedule sched){
             checkBest(sched);
         }
     };
-    
-    public Integer getBound() {
-    	return bound;
-    }
-    
-    public void setBound(int i) {
-    	boundLock.lock();
-    	bound = i;
-    	boundLock.unlock();
-    }
 
+    public List<Course> getCourses(){ return allCourses; }
 
-    public List<Course> getCourses(){
-        return allCourses;
-    }
+    public List<LabSlot> getLabSlots(){ return labSlots; }
+    public List<CourseSlot> getCourseSlots(){ return courseSlots; }
+    public List<Triple<Course, Slot, Integer>> getPreferences(){ return preferences; }
+    public List<Pair<Course, Course>> getTogether(){ return together; }
+    public List<Pair<Course, Course>> getIncompatible(){ return incompatible; }
+    public Map<Course,List<Slot>> getUnwanted(){ return unwanted; }
 
-    public List<LabSlot> getLabSlots(){
-        return labSlots;
-    }
-    public List<CourseSlot> getCourseSlots(){
-        return courseSlots;
-    }
-    
-    public List<Triple<Course, Slot, Integer>> getPreferences(){
-        return preferences;
-    }
-    
-    public List<Pair<Course, Course>> getTogether(){
-        return together;
-    }
-
-    public List<Pair<Course, Course>> getIncompatible(){
-        return incompatible;
-    }
-
-    public Map<Course,List<Slot>> getUnwanted(){
-        return unwanted;
-    }
 
     public int getWeights(Weight w){
-        switch (w) {
-            case MinFilled: return wMinFilled;
-            case Preference: return wPref;
-            case SectionDifference: return wSecDiff;
-            case Paired: return wPair;
-            default: return 0;
-        }
+        return weights.get(w);
     }
 
     public int getPenalies(Penalty p){
-        switch (p) {
-            case CourseMin: return penCourseMin;
-            case LabMin: return penLabMin;
-            case SectionDifference: return penSecDiff;
-            case Pair: return penPair;
-            default: return 0;
-        }
+        return penalties.get(p);
     }
 
     private synchronized void checkBest(Schedule sched){
-        if (bestNode == null || sched.betterThan(bestNode)) {
-            bestNode = sched;
-            bound = sched.getScore();
+        Schedule best = Searcher.best;
+        if (best == null || sched.betterThan(best)) {
+            best = sched;
+            Searcher.bound = sched.getScore();
         }
     }
     public synchronized Schedule getBest() {
-    	Schedule b = bestNode;
+    	Schedule b = Searcher.best;
     	return b;
     }
 

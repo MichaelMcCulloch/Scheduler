@@ -21,7 +21,7 @@ public class Main {
 	        	//System.out.println(startingNodes);
 	        	Schedule A =startingNodes.remove();
 	        	//System.out.println(A.div(Model.getInstance().checkBest));
-	            startingNodes.addAll(A.div(Model.getInstance().checkBest, Model.getInstance().getBound()));
+	            startingNodes.addAll(A.div(Model.getInstance().checkBest, Searcher.bound));
 	        }
         } catch (NoSuchElementException e) {
         	
