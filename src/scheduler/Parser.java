@@ -77,7 +77,7 @@ public class Parser {
         m.setData(newList, labSlots, courseSlots, unwanted, preferences, together, incompatible, weights, penalties);
         
         try {
-            initialInstance = new Schedule(null, partAssign);
+            initialInstance = new Schedule(partAssign);
         } catch (Exception e) {
             System.exit(1);
         }
