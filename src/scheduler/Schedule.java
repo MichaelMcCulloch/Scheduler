@@ -67,9 +67,9 @@ public class Schedule implements Comparable<Schedule> {
         if (!constr(newAssignment)) throw new ConstraintsFailed();
 
         this.bound = evalPair()      * Model.getInstance().getWeights(Model.Weight.Paired)
-                   + evalPref()      * Model.getInstance().getWeights(Model.Weight.Preference)
                    + evalSecDiff()   * Model.getInstance().getWeights(Model.Weight.SectionDifference);
         this.score = bound 
+        		   + evalPref()      * Model.getInstance().getWeights(Model.Weight.Preference)
                    + evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
 
     }

@@ -167,7 +167,7 @@ public class Parser {
         	Lecture next = new Lecture(q.remove());
         	for (Lecture alreadyParsed : courses) {		//for all courses already parsed
         		if (alreadyParsed.isSibling(next)) {	//if siblings
-        			alreadyParsed.addSibling(next);		//add reciprocal references to sibling list
+        			//alreadyParsed.addSibling(next);		//add reciprocal references to sibling list
         			next.addSibling(alreadyParsed);
         		}
         		if (alreadyParsed.both500s(next)) {
@@ -278,13 +278,13 @@ public class Parser {
                 found413 = false;
         Lab q813 = new Lab("CPSC813"), //quiz 813
             q913 = new Lab("CPSC913"); //quiz 913
-        Slot s = findByDayTime(false, "TU", "18:00");
         for (Lecture var : courseList) {
             String id = var.toString().split("LEC")[0];
             if (id.equals("CPSC313")) {
                 if (!found313){ //Add 813
                     found313 = true;
                     labList.add(q813);
+                    Slot s = findByDayTime(false, "TU", "18:00");
                     if (s != null) {
                         partAssign.put(q813, s);
                     } else {
@@ -302,6 +302,7 @@ public class Parser {
                 if (!found413){ //Add 913
                     found413 = true;
                     labList.add(q913);
+                    Slot s = findByDayTime(false, "TU", "18:00");
                     if (s != null) {
                         partAssign.put(q913, s);
                     } else {
