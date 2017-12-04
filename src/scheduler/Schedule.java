@@ -54,6 +54,7 @@ public class Schedule implements Comparable<Schedule> {
         this.parent = parent;
         this.assignments = new HashMap<>();
         this.counters = new HashMap<>();
+        this.depth = parent.depth + 1;
         //copy data from parent
         assignments.putAll(parent.assignments);
         counters.putAll(parent.counters);
@@ -193,7 +194,7 @@ public class Schedule implements Comparable<Schedule> {
             for (Slot s : slots) {
                 try {
                     Schedule next = new Schedule(this, new Pair<Course, Slot>(assign, s));
-                    boolean satisfactory = (bound == null || this.bound <= bound);
+                    boolean satisfactory = (bound == null || this.bound < bound);
                     if (next.solved())
                         checkBest.accept(next);
                     else if (satisfactory)
