@@ -93,14 +93,14 @@ public class Model {
         return penalties.get(p);
     }
 
-    private synchronized void checkBest(Schedule sched){
+    private void checkBest(Schedule sched){
         Schedule best = Searcher.best;
         if (best == null || sched.betterThan(best)) {
             best = sched;
             Searcher.bound = sched.getScore();
         }
     }
-    public synchronized Schedule getBest() {
+    public Schedule getBest() {
     	Schedule b = Searcher.best;
     	return b;
     }

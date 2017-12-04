@@ -54,7 +54,7 @@ public class Searcher implements Runnable {
         }
     };
 
-    public synchronized void checkBest(Schedule sched){
+    public void checkBest(Schedule sched){
         if (best == null || sched.betterThan(best)) {
             best = sched;
             bound = sched.getScore();

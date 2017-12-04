@@ -43,7 +43,7 @@ public class Main {
     
 
     public static void main(String[] args) {
-        int poolSize = Runtime.getRuntime().availableProcessors();
+        int poolSize = 2;//Runtime.getRuntime().availableProcessors();
         
         String filename;
         Map<Model.Weight, Integer> weights = new HashMap<>();
