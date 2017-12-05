@@ -3,6 +3,7 @@ package scheduler;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.lang.*;
 
 /**
  * Schedule
@@ -13,11 +14,15 @@ public class Schedule implements Comparable<Schedule> {
     private Schedule parent;
     private int depth, score, bound;
     private Map<Slot, Integer> counters;
+    
+    
 
     public class ConstraintsFailed extends Exception {
         public ConstraintsFailed() {
             super();
         }
+        
+        
     }
 
     /**

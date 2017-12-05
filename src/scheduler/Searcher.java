@@ -16,6 +16,8 @@ public class Searcher implements Runnable {
     private static volatile boolean shutdownSignal = false;
     public static volatile Schedule best; //complete schedules only
     public static volatile Integer bound;
+    
+    protected static volatile int[] finished = new int[Model.getInstance().numThreads];
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
@@ -30,7 +32,7 @@ public class Searcher implements Runnable {
      */
     @Override
     public void run() {
-
+    	finished[(int) (Thread.currentThread().getId() % Model.getInstance().numThreads)] = 1;
         while (!workQueue.isEmpty() && !shutdownSignal) {
             try {
                 Schedule next = workQueue.remove();
@@ -45,6 +47,8 @@ public class Searcher implements Runnable {
         }
         //For testing
         System.out.println("Shutting down: " + workQueue.size());
+        finished[(int) (Thread.currentThread().getId() % Model.getInstance().numThreads)] = 0;
+
     }
 
     //passing a function as a parameter
@@ -59,6 +63,13 @@ public class Searcher implements Runnable {
             best = sched;
             bound = sched.getScore();
         }
+    }
+    
+    public static boolean finished() {
+    	for (int i : finished) {
+			if (i == 1) return false;
+		}
+    	return true;
     }
 
 }

@@ -43,7 +43,7 @@ public class Main {
     
 
     public static void main(String[] args) {
-        int poolSize = 2;//Runtime.getRuntime().availableProcessors();
+        int poolSize = Model.getInstance().numThreads;
         
         String filename;
         Map<Model.Weight, Integer> weights = new HashMap<>();
@@ -90,12 +90,15 @@ public class Main {
         }
         
         pool.shutdown();
-        Scanner user = new Scanner(System.in);
-        System.out.println("Enter \"quit\" to quit");
-        while(!user.hasNextLine()){
-                if (user.nextLine().equals("quit")){
-                    Searcher.stop();
-                }
+        
+        System.out.println("Press the \'any\' key to quit");
+        
+         
+        Reader s = new Reader();
+		Thread t = new Thread(s);
+		t.start();
+        
+        while(!Searcher.finished() && !s.input){
         };
         
         
