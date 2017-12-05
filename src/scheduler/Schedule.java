@@ -45,7 +45,7 @@ public class Schedule implements Comparable<Schedule> {
         this.bound = evalPair() 	* Model.getInstance().getWeights(Model.Weight.Paired)
                    + evalSecDiff() 	* Model.getInstance().getWeights(Model.Weight.SectionDifference);
         this.score = bound 
-                + evalPref() 	* Model.getInstance().getWeights(Model.Weight.Preference)
+                   + evalPref() 	* Model.getInstance().getWeights(Model.Weight.Preference)
         		   + evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
 
     }
@@ -131,7 +131,7 @@ public class Schedule implements Comparable<Schedule> {
         int sum = 0;
         for (Triple<Course, Slot, Integer> pref : Model.getInstance().getPreferences()) {
             Slot slot = assignments.get(pref.fst());
-            if (slot == null || (!slot.equals(pref.snd()))) {
+            if (slot != null && (!slot.equals(pref.snd()))) {
                 sum += pref.trd();
             }
         }
@@ -143,7 +143,7 @@ public class Schedule implements Comparable<Schedule> {
         for (Pair<Course, Course> pair : Model.getInstance().getTogether()) {
             Slot slot1 = assignments.get(pair.fst());
             Slot slot2 = assignments.get(pair.snd());
-            if (slot1 == null || slot2 == null || (!slot1.equals(slot2))) {
+            if (slot1 != null && slot2 != null && (!slot1.equals(slot2))) {
                 sum += Model.getInstance().getPenalies(Model.Penalty.Pair);
             }
         }
