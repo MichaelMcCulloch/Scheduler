@@ -101,12 +101,10 @@ public class Main {
         while(!Searcher.finished() && !s.input){
         };
         
-        
         Schedule best = Model.getInstance().getBest();
         if (best==null) System.out.println("No schedule found!");
         else System.out.println(best.prettyPrint());
-        /**
-         * TODO: Printout Model.best;
-         */
+        System.exit(0);
+        
     }
 }
