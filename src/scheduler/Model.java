@@ -4,9 +4,9 @@ import java.util.function.Consumer;
 
 
 public class Model {
-	public static int numThreads = 2;//Runtime.getRuntime().availableProcessors();
+	public static int numThreads = Runtime.getRuntime().availableProcessors();
 	
-    private static volatile Model instance = null;
+    private static Model instance = null;
 
     private List<LabSlot> labSlots;
     private List<CourseSlot> courseSlots;
