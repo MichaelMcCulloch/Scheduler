@@ -2,6 +2,7 @@ package scheduler;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 /**
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
  */
 public class Searcher implements Runnable {
 
+    private final static ReentrantLock schedLock = new ReentrantLock();
     private PriorityQueue<Schedule> workQueue;
     private static volatile boolean shutdownSignal = false;
     public static Schedule best; //complete schedules only
@@ -59,9 +61,12 @@ public class Searcher implements Runnable {
     };
 
     public void checkBest(Schedule sched){
+        schedLock.lock();
         if (best == null || sched.betterThan(best)) {
             best = sched;
             bound = sched.getScore();
+            String pp = sched.prettyPrint();
+            schedLock.unlock();
             long threadID = Thread.currentThread().getId();
             File f = new File(System.getProperty("user.dir") + File.separator + "best" + threadID % Model.numThreads + ".txt");
             try {
@@ -72,6 +77,7 @@ public class Searcher implements Runnable {
                 //whoops oh well, can't stop nop
             }
         }
+        schedLock.unlock();
     }
     
     public static boolean finished() {
