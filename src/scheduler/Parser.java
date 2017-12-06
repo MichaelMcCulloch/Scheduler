@@ -288,7 +288,7 @@ public class Parser {
                     if (s != null) {
                         partAssign.put(q813, s);
                     } else {
-                        System.out.println("Schedule Not Found!");
+                        System.out.println("No Schedule Found!");
                         System.exit(0); //does this actually exit?
                     }                   
                 }
@@ -306,7 +306,7 @@ public class Parser {
                     if (s != null) {
                         partAssign.put(q913, s);
                     } else {
-                        System.out.println("Schedule Not Found!");
+                        System.out.println("No Schedule Found!");
                         System.exit(0); //Does this actually exit?
                     }                   
                 }

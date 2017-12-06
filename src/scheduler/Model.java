@@ -96,9 +96,9 @@ public class Model {
     }
 
     private void checkBest(Schedule sched){
-        Schedule best = Searcher.best;
-        if (best == null || sched.betterThan(best)) {
-            best = sched;
+        Schedule b = Searcher.best;
+        if (b == null || sched.betterThan(b)) {
+            Searcher.best = sched;
             Searcher.bound = sched.getScore();
         }
     }

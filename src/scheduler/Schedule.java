@@ -10,11 +10,38 @@ import java.lang.*;
  */
 public class Schedule implements Comparable<Schedule> {
 
-    private Map<Course, Slot> assignments;
+    private ArrayList<Pair<Course,Slot>> assignments;
+    private ArrayList<Pair<Slot,Integer>> counters;
     private Schedule parent;
     private int depth, score, bound;
-    private Map<Slot, Integer> counters;
     
+    protected ArrayList<Pair<Course,Slot>> getAssignments(Pair<Course,Slot> newAssignment){
+        if (parent == null) return assignments;
+        else {
+            ArrayList<Pair<Course,Slot>> ll = (ArrayList<Pair<Course,Slot>>) parent.assignments.clone();
+            ll.add(newAssignment);
+            return ll;
+        }
+    }
+    protected ArrayList<Pair<Slot,Integer>> getCounts(Pair<Course,Slot> newAssignment){
+        if (parent == null) return counters;
+        else {
+            ArrayList<Pair<Slot,Integer>> ll = (ArrayList<Pair<Slot,Integer>>) parent.counters.clone();
+            boolean found = false;
+            for (int i = 0; i < ll.size(); i++){
+                Pair<Slot,Integer> old = ll.get(i);
+                if (old.fst() == newAssignment.snd()){
+                    Integer c = old.snd();
+                    ll.remove(i);
+                    ll.add(new Pair<Slot,Integer>(old.fst(), c+1));
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) ll.add(new Pair<Slot,Integer>(newAssignment.snd(), 1));
+            return ll;
+        }
+    }
     
 
     public class ConstraintsFailed extends Exception {
@@ -33,20 +60,20 @@ public class Schedule implements Comparable<Schedule> {
         this.parent = null;
         this.depth = 0;
         //all zero
-        counters = new HashMap<>();
-        for (Slot entry : Model.getInstance().getCourseSlots()) {
-            counters.put(entry, 0);
+        Map<Slot,Integer> count = new HashMap<>();
+        this.assignments = new ArrayList<>();
+        for (Entry<Course,Slot> var : initialAssignments.entrySet()) {
+            assignments.add(new Pair<Course,Slot>(var.getKey(), var.getValue()));
+            Integer old = count.get(var.getValue());
+            if (old == null) old = 0;
+            count.put(var.getValue(), old + 1);
         }
-        for (Slot entry : Model.getInstance().getLabSlots()) {
-            counters.put(entry, 0);
+        this.counters = new ArrayList<>();
+        for (Entry<Slot,Integer> var : count.entrySet()) {
+            this.counters.add(new Pair<Slot,Integer>(var.getKey(), var.getValue()));
         }
+        count = null; //GC
 
-        //count new Assignments
-        this.assignments = initialAssignments;
-        for (Entry<Course,Slot> assign : initialAssignments.entrySet()) {
-            int count = counters.get(assign.getValue());
-            counters.put(assign.getValue(), count + 1);
-        }
         this.bound = evalPair() 	* Model.getInstance().getWeights(Model.Weight.Paired)
                    + evalSecDiff() 	* Model.getInstance().getWeights(Model.Weight.SectionDifference);
         this.score = bound 
@@ -57,18 +84,12 @@ public class Schedule implements Comparable<Schedule> {
 
     public Schedule(Schedule parent, final Pair<Course,Slot> newAssignment) throws ConstraintsFailed{
         this.parent = parent;
-        this.assignments = new HashMap<>();
-        this.counters = new HashMap<>();
+        this.assignments = getAssignments(newAssignment);
+        this.counters = getCounts(newAssignment);
         this.depth = parent.depth + 1;
-        //copy data from parent
-        assignments.putAll(parent.assignments);
-        counters.putAll(parent.counters);
 
-        //add new assignment
-        assignments.put(newAssignment.fst(), newAssignment.snd());
         //increment counter
-        int countSlot = counters.get(newAssignment.snd());
-        counters.put(newAssignment.snd(), countSlot + 1);
+        
         //check constraints
         if (!constr(newAssignment)) throw new ConstraintsFailed();
 
@@ -78,11 +99,6 @@ public class Schedule implements Comparable<Schedule> {
         		   + evalPref()      * Model.getInstance().getWeights(Model.Weight.Preference)
                    + evalMinFilled() * Model.getInstance().getWeights(Model.Weight.MinFilled);
 
-    }
-
-
-    public Map<Course, Slot> getAssigned() {
-        return assignments;
     }
 
     //Serves purpose of fLEAF;
@@ -120,10 +136,10 @@ public class Schedule implements Comparable<Schedule> {
 
     private int evalMinFilled() {
         int sum = 0;
-        for (Map.Entry<Slot, Integer> entry : counters.entrySet()) {
-            int delta = entry.getKey().getMin() - entry.getValue();
-            if (delta > 0) {
-                if (entry.getKey() instanceof CourseSlot) {
+        for (Pair<Slot,Integer> var : this.counters) {
+            int delta = var.fst().getMin() - var.snd();
+            if (delta > 0){
+                if (var.fst() instanceof CourseSlot){
                     sum += delta * Model.getInstance().getPenalies(Model.Penalty.CourseMin);
                 } else {
                     sum += delta * Model.getInstance().getPenalies(Model.Penalty.LabMin);
@@ -135,40 +151,92 @@ public class Schedule implements Comparable<Schedule> {
 
     private int evalPref() {
         int sum = 0;
+        Map<Course,Slot> temp = new HashMap<>(); //memoize
         for (Triple<Course, Slot, Integer> pref : Model.getInstance().getPreferences()) {
-            Slot slot = assignments.get(pref.fst());
+            Slot slot = temp.get(pref.fst()); //is it in the map?
+            if (slot == null) { //find it
+                for (Pair<Course,Slot> var : this.assignments) {
+                    if (var.fst() == pref.fst()){
+                        slot = var.snd();
+                        temp.put(var.fst(), var.snd());
+                        break;
+                    }
+                }
+                continue;
+            }
             if (slot != null && (!slot.equals(pref.snd()))) {
                 sum += pref.trd();
             }
         }
+        temp = null; //GC
         return sum;
     }
 
     private int evalPair() {
         int sum = 0;
+        Map<Course,Slot> temp = new HashMap<>(); //to memoize with
         for (Pair<Course, Course> pair : Model.getInstance().getTogether()) {
-            Slot slot1 = assignments.get(pair.fst());
-            Slot slot2 = assignments.get(pair.snd());
+            Slot slot1 = temp.get(pair.fst());
+            if (slot1 == null) { //try to find it
+                for(Pair<Course,Slot> var : this.assignments){
+                    if (var.fst() == pair.fst()){
+                        slot1 = var.snd();
+                        temp.put(var.fst(), var.snd());
+                        break;
+                    }
+                }
+            }
+            Slot slot2 = temp.get(pair.snd());
+            if (slot2 == null) { //try to find it
+                for(Pair<Course,Slot> var : this.assignments){
+                    if (var.fst() == pair.snd()){
+                        slot2 = var.snd();
+                        temp.put(var.fst(), var.snd());
+                        break;
+                    }
+                }
+            }
             if (slot1 != null && slot2 != null && (!slot1.equals(slot2))) {
                 sum += Model.getInstance().getPenalies(Model.Penalty.Pair);
             }
         }
+        temp = null; //GC
         return sum;
     }
 
     private int evalSecDiff() {
         int sum = 0;
+        Map<Course,Slot> temp = new HashMap<>(); //to memoize with
         for (Course entry : Model.getInstance().getCourses()) {
             if (entry instanceof Lecture) {
                 for (Lecture sibling : ((Lecture) entry).getSiblings()) {
-                    Slot slot1 = assignments.get(sibling);
-                    Slot slot2 = assignments.get(entry);
+                    Slot slot1 = temp.get(sibling);
+                    if (slot1 == null) { //try to find it
+                        for(Pair<Course,Slot> var : this.assignments){
+                            if (var.fst() == sibling){
+                                slot1 = var.snd();
+                                temp.put(var.fst(), var.snd());
+                                break;
+                            }
+                        }
+                    }
+                    Slot slot2 = temp.get(entry);
+                    if (slot2 == null) { //try to find it
+                        for(Pair<Course,Slot> var : this.assignments){
+                            if (var.fst() == entry){
+                                slot2 = var.snd();
+                                temp.put(var.fst(), var.snd());
+                                break;
+                            }
+                        }
+                    }
                     if (slot1 != null && slot2 != null && slot1.equals(slot2)) {
                         sum += Model.getInstance().getPenalies(Model.Penalty.SectionDifference);
                     }
                 }
             }
         }
+        temp = null; //GC
         return sum;
     }
 
@@ -181,13 +249,23 @@ public class Schedule implements Comparable<Schedule> {
         List<Schedule> n = new ArrayList<>();
 
         //find a class not used in the current assignment
+        
         Course assign = null;
+                
         for (Course c : Model.getInstance().getCourses()) {
-            Slot s = assignments.get(c);
-            if (s == null) {
-                assign = c;
-                break;
-            }
+        	boolean found = false;
+        	for (Pair<Course,Slot> v : assignments) {
+				if (c == v.fst()) {
+					found = true;
+					break;
+				}
+			}
+        	if (found) continue;
+        	else {
+        		assign = c;
+        		break;
+        	}
+        	
         }
         //for each slot, make children in which this course is in that slot
         if (assign != null) {
@@ -233,22 +311,10 @@ public class Schedule implements Comparable<Schedule> {
 
         Slot s = newAssignment.snd();
 
-        if (s instanceof CourseSlot) {
-            //System.out.println(s);
-            //System.out.println(s.getMax());
-            //System.out.println(counters.get(s));
-            Integer courseCounter = counters.get(s);
-            if (courseCounter != null) {
-                if (courseCounter > s.getMax()) {
-                    return false;
-                }
-            }
-        } else if (s instanceof LabSlot) {
-            Integer labCounter = counters.get(s);
-            if (labCounter != null) {
-                if (labCounter > s.getMax()) {
-                    return false;
-                }
+        for (Pair<Slot,Integer> var : this.counters) {
+            if (s == var.fst()) {
+                if (var.snd() > s.getMax()) return false;
+                else return true;
             }
         }
         return true;
@@ -260,9 +326,18 @@ public class Schedule implements Comparable<Schedule> {
     public boolean constrCourseConflict(Pair<Course, Slot> newAssignment) {
 
         Course c = newAssignment.fst();
+        Slot s = newAssignment.snd();
+        List<Course> mutex = newAssignment.fst().getMutex();
+
         if (c instanceof Lecture) {
             for (Course conflict : c.getMutex()) {
-                Slot conflictTimeSlot = assignments.get(conflict);
+                Slot conflictTimeSlot = null; //find the slot currently assigned
+                for (Pair<Course,Slot> var : this.assignments) {
+                    if (var.fst() == conflict) {
+                        conflictTimeSlot = var.snd();
+                        break;
+                    }
+                }
                 if (conflictTimeSlot != null) {
                     if (conflict instanceof Lecture) {
                         if (newAssignment.snd() == conflictTimeSlot) {
@@ -279,7 +354,13 @@ public class Schedule implements Comparable<Schedule> {
 
         } else if (c instanceof Lab) {
             for (Course conflict : c.getMutex()) {
-                Slot conflictTimeSlot = assignments.get(conflict);
+                Slot conflictTimeSlot = null; //find the slot currently assigned
+                for (Pair<Course,Slot> var : this.assignments) {
+                    if (var.fst() == conflict) {
+                        conflictTimeSlot = var.snd();
+                        break;
+                    }
+                }
                 if (conflictTimeSlot != null) {
                     if (conflict instanceof Lab) {
                         continue;
@@ -388,10 +469,15 @@ public class Schedule implements Comparable<Schedule> {
      * if it is below the bound, discard it
      */
     public boolean solved() {
-        for (Course c : Model.getInstance().getCourses()) {
-            if (assignments.get(c) == null)
-                return false;
+        Map<Course,Slot> temp = new HashMap<>();
+        for (Pair<Course,Slot> var : this.assignments) {
+            temp.put(var.fst(), var.snd());
         }
+
+        for (Course c : Model.getInstance().getCourses()) {
+            if(temp.get(c) == null) return false;
+        }
+        temp = null;//gc
         return true;
     }
 
@@ -406,14 +492,12 @@ public class Schedule implements Comparable<Schedule> {
     public String prettyPrint() {
 
         int maxPadding = 0;
-        List<Pair<Course, Slot>> list = new ArrayList<>();
-        for (Entry<Course, Slot> assign : this.assignments.entrySet()) {
-            list.add(new Pair<>(assign.getKey(), assign.getValue()));
-            if (assign.getKey().toString().length() > maxPadding)
-                maxPadding = assign.getKey().toString().length();
+        for (Pair<Course, Slot> assign : this.assignments) {
+            if (assign.fst().toString().length() > maxPadding)
+                maxPadding = assign.fst().toString().length();
         }
 
-        list.sort(new Comparator<Pair<Course, Slot>>() {
+        assignments.sort(new Comparator<Pair<Course, Slot>>() {
             @Override
             public int compare(Pair<Course, Slot> o1, Pair<Course, Slot> o2) {
                 return o1.fst().toString().compareTo(o2.fst().toString());
@@ -421,7 +505,7 @@ public class Schedule implements Comparable<Schedule> {
         });
 
         String out = "Eval " + score + "\n";
-        for (Pair<Course, Slot> pair : list) {
+        for (Pair<Course, Slot> pair : assignments) {
             String courseName = pair.fst().toString();
             int paddingToAdd = maxPadding - courseName.length();
             for (int i = 0; i < paddingToAdd; i++)

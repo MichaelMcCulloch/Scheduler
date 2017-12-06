@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class Searcher implements Runnable {
 
     private PriorityQueue<Schedule> workQueue;
-    private static volatile boolean shutdownSignal = false;
+    private static boolean shutdownSignal = false;
     public static Schedule best; //complete schedules only
     public static Integer bound;
     
