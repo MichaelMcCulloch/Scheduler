@@ -1,5 +1,6 @@
 package scheduler;
 
+import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -17,7 +18,7 @@ public class Searcher implements Runnable {
     public static volatile Schedule best; //complete schedules only
     public static volatile Integer bound;
     
-    protected static volatile int[] finished = new int[Model.getInstance().numThreads];
+    protected static volatile int[] finished = new int[Model.numThreads];
 
     public Searcher(List<Schedule> instances) {
         workQueue = new PriorityQueue<>(instances);
@@ -32,11 +33,11 @@ public class Searcher implements Runnable {
      */
     @Override
     public void run() {
-    	finished[(int) (Thread.currentThread().getId() % Model.getInstance().numThreads)] = 1;
+		finished[(int) (Thread.currentThread().getId() % Model.numThreads)] = 1;
         while (!workQueue.isEmpty() && !shutdownSignal) {
             try {
                 Schedule next = workQueue.remove();
-                if (bound == null || next.getBound() <= bound) {
+                if (bound == null || next.getBound() < bound) {
                     List<Schedule> children = next.div(checkBest, bound);
                     if (children.isEmpty()) continue;
                     workQueue.addAll(children);
@@ -45,9 +46,8 @@ public class Searcher implements Runnable {
                 //TODO: handle exception
             }
         }
-        //For testing
-        System.out.println("Shutting down: " + workQueue.size());
-        finished[(int) (Thread.currentThread().getId() % Model.getInstance().numThreads)] = 0;
+        
+		finished[(int) (Thread.currentThread().getId() % Model.numThreads)] = 0;
 
     }
 
@@ -62,6 +62,15 @@ public class Searcher implements Runnable {
         if (best == null || sched.betterThan(best)) {
             best = sched;
             bound = sched.getScore();
+            long threadID = Thread.currentThread().getId();
+            File f = new File(System.getProperty("user.dir") + File.separator + "best" + threadID % Model.numThreads + ".txt");
+            try {
+                FileWriter fw = new FileWriter(f);
+                fw.write(sched.prettyPrint());
+                fw.close();
+			} catch (IOException e) {
+                //whoops oh well, can't stop nop
+            }
         }
     }
     

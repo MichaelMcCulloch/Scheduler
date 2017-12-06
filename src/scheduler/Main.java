@@ -103,7 +103,19 @@ public class Main {
         
         Schedule best = Model.getInstance().getBest();
         if (best==null) System.out.println("No schedule found!");
-        else System.out.println(best.prettyPrint());
+        else {
+            String bestStr = best.prettyPrint();
+            System.out.println(bestStr);
+            File record = new File(System.getProperty("user.dir") + File.separator + "best.txt");
+            try {
+                FileWriter fw = new FileWriter(record);
+                fw.write(bestStr);
+                fw.close();
+			} catch (IOException e) {
+                //whoops oh well, can't stop nop
+            }
+        }
+        
         System.exit(0);
         
     }
