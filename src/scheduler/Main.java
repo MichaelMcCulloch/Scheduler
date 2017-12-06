@@ -91,7 +91,7 @@ public class Main {
         
         pool.shutdown();
         
-        System.out.println("Press the \'any\' key to quit");
+        System.out.println("Press \'Return\' key to quit");
         
          
         Reader s = new Reader();

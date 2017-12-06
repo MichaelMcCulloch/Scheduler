@@ -15,8 +15,8 @@ public class Searcher implements Runnable {
 
     private PriorityQueue<Schedule> workQueue;
     private static volatile boolean shutdownSignal = false;
-    public static volatile Schedule best; //complete schedules only
-    public static volatile Integer bound;
+    public static Schedule best; //complete schedules only
+    public static Integer bound;
     
     protected static volatile int[] finished = new int[Model.numThreads];
 
