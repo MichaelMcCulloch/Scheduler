@@ -87,12 +87,12 @@ public class Schedule implements Comparable<Schedule> {
     //Serves purpose of fLEAF;
     @Override
     public int compareTo(Schedule other) {
-    	if (Searcher.best == null) {
+    	//if (Searcher.best == null) {
 		    if (this.depth > other.depth)
 		        return -1;
 		    else if (this.depth < other.depth)
 		        return 1;
-			}
+			//}
         return (betterThan(other)) ? -1 : 1;
     }
 
@@ -200,6 +200,7 @@ public class Schedule implements Comparable<Schedule> {
                 try {
                     Schedule next = new Schedule(this, new Pair<Course, Slot>(assign, s));
                     boolean satisfactory = (bound == null || this.bound < bound);
+                    //System.out.println(String.format("bound: %d, test: %d", bound,this.bound));
                     if (next.solved())
                         checkBest.accept(next);
                     else if (satisfactory)
