@@ -11,7 +11,6 @@ import java.lang.*;
 public class Schedule implements Comparable<Schedule> {
 
     private Map<Course, Slot> assignments;
-    private Schedule parent;
     private int depth, score, bound;
     private Map<Slot, Integer> counters;
     
@@ -30,7 +29,6 @@ public class Schedule implements Comparable<Schedule> {
      */
     public Schedule(final Map<Course,Slot> initialAssignments){
         //no parent
-        this.parent = null;
         this.depth = 0;
         //all zero
         counters = new HashMap<>();
@@ -56,10 +54,11 @@ public class Schedule implements Comparable<Schedule> {
     }
 
     public Schedule(Schedule parent, final Pair<Course,Slot> newAssignment) throws ConstraintsFailed{
-        this.parent = parent;
+        
         this.assignments = new HashMap<>();
         this.counters = new HashMap<>();
         this.depth = parent.depth + 1;
+        
         //copy data from parent
         assignments.putAll(parent.assignments);
         counters.putAll(parent.counters);
@@ -71,7 +70,7 @@ public class Schedule implements Comparable<Schedule> {
         counters.put(newAssignment.snd(), countSlot + 1);
         //check constraints
         if (!constr(newAssignment)) throw new ConstraintsFailed();
-
+        parent = null; //GC
         this.bound = evalPair()      * Model.getInstance().getWeights(Model.Weight.Paired)
                    + evalSecDiff()   * Model.getInstance().getWeights(Model.Weight.SectionDifference);
         this.score = bound 
