@@ -352,8 +352,9 @@ public class Schedule implements Comparable<Schedule> {
         Course c = newAssignment.fst();
 
         if (c instanceof Lecture) {
-            int sectionNum = c.getSectNum();
-            if (sectionNum >= 900) {
+            int sectionNum = c.getLecNum();
+            int firstDigit = Integer.parseInt(Integer.toString(sectionNum).substring(0, 1));
+            if (firstDigit >= 9) {
                 Slot s = newAssignment.snd();
                 if (s.getTime() < 18 * 60) {
                     return false;
